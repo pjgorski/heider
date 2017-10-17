@@ -100,38 +100,37 @@ int _tmain(int argc, _TCHAR* argv[])
     cout << setprecision(3);
 	
 	std::ofstream out("out.txt");
-	std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
-	std::cout.rdbuf(out.rdbuf()); //redirect std::cout to out.txt!
+	if (TO_FILE){
+		std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
+		std::cout.rdbuf(out.rdbuf()); //redirect std::cout to out.txt!
+	}
 
 	//freopen("out.txt","w",stdout);
 
 	srand ((unsigned)time(NULL));
-	//TNEANet Graph = TNEANet::TNEANet();
-	const int I = 10;
-	const int N_min = 20, N_max = 40, N_step = 10;
-	const int attr_min = 3, attr_max = 11, attr_step = 2;
-	//const int N_min = 10, N_max = 15, N_step = 5;
-	//const int attr_min = 3, attr_max = 5, attr_step = 2;
 
-	vector<int> NVals, attrVals;
-	for (int i = N_min; i <= N_max; i+=N_step)
-		NVals.push_back(i);
-	for (int i = attr_min; i <= attr_max; i+=attr_step)
-		attrVals.push_back(i);
+	HeiderGraph G(20, 3, "complete");
 
-	balance_test(NVals, attrVals, I);
+	for (int i = 0; i < 10; ++i){
+		G.AntalDynamics(10000);
+		G.RandomInit();
+	}
 
-	
-	//int NodeId = 0;
-	//for (TNEANet::TAIntI NI = G->BegNAIntI(v[0]);
-	//NI < G->EndNAIntI(v[0]); NI++) {
-	//// Check if defaults are now 0.
-	//if (NI.GetDat()() != 0) {
-	//	printf("Attribute: %s, Node: %i, Val: %i\n", v[0].CStr(), NodeId, NI.GetDat()());
-	//	NodeId++;
-	//}
- // } 
-	//out.close();
+	/* BALANCE TEST */
+	//const int I = 30;
+	//const int N_min = 20, N_max = 40, N_step = 10;
+	//const int attr_min = 3, attr_max = 11, attr_step = 2;
+	////const int N_min = 10, N_max = 15, N_step = 5;
+	////const int attr_min = 3, attr_max = 5, attr_step = 2;
+
+	//vector<int> NVals, attrVals;
+	//for (int i = N_min; i <= N_max; i+=N_step)
+	//	NVals.push_back(i);
+	//for (int i = attr_min; i <= attr_max; i+=attr_step)
+	//	attrVals.push_back(i);
+
+	//balance_test(NVals, attrVals, I);
+
 	system("pause");
 	return 0;
 }
