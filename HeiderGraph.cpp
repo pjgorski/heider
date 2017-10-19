@@ -300,7 +300,7 @@ TStr HeiderGraph::GetStrTriadType( int triadType )
 	return res;
 }
 
-void HeiderGraph::SaveFinalState( int p, int idRun )
+void HeiderGraph::SaveFinalState( double p, int idRun )
 {
 	string outFileName = "network_" + to_string((long long)N) + "_" + to_string((long long)d) + "_" 
 		+ to_string((long double)p) + "_" 

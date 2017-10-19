@@ -51,7 +51,7 @@ class HeiderGraph
 	/* if an attribute was modified and we did not recalculate caseCount, balanced/imbalancedCount, positive/negativeWeightsCount, 
 	wasModified is set to true, and after recalculation is set to false*/
 	bool wasModified;
-	void SaveFinalState(int p, int idRun);
+	void SaveFinalState(double p, int idRun);
 public:
 	HeiderGraph(void);
 	HeiderGraph(int N, int d, TStr graphType, TStr changeSignType);

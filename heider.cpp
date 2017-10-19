@@ -127,7 +127,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		int printEvery = -1;
 		for (int i = 0; i < confParams.printEvery.size(); ++i){
 			if (N <= confParams.printEvery[i].first){
-				printEvery = confParams.printEvery[i].first;
+				printEvery = confParams.printEvery[i].second;
 				break;
 			}
 		}
