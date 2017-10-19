@@ -1,0 +1,18 @@
+Repetitions: 30
+N_min: 10
+N_max: 30
+N_step: 5
+Attr_min: 3
+Attr_max: 11
+Attr_step: 2
+P: 1
+Max_iter: 120000
+Dynamics_type: attrRandom
+Graph_type: complete
+Print_every:
+10 10
+20 50
+250
+TO_FILE: true
+ITER_KEEP: true
+INST_KEEP: true

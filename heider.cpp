@@ -2,9 +2,10 @@
 //
 
 #include "stdafx.h"
+#include "Constants.h"
 #include "HeiderGraph.h"
 #include "HeiderTheor.h"
-#include "Constants.h"
+#include "Stat.h"
 //#include "mmnet.h"
 //#include <vector>
 #include <string>
@@ -12,6 +13,7 @@
 #include <algorithm>
 #include <iomanip>
 #include <fstream>
+#include <vector>
 
 
 using namespace std;
@@ -20,7 +22,7 @@ void get_avg_balance_parts(const int N, const int d, const int I, float&  avg_ba
 	vector<int>avg_case_count(BALANCE_CASE_COUNT);
 
 	for (int num = 0; num < I; ++num){
-		HeiderGraph G(N, d, "complete");
+		HeiderGraph G(N, d, "complete", "attrChoice");
 		vector<int> caseCounts;
 		G.GetCaseCounts(caseCounts);
 		float balanced_part = G.GetBalancedPart(),
@@ -92,15 +94,27 @@ int _tmain(int argc, _TCHAR* argv[])
 	/*const int attr_count = 5;
 	check_triad_distr(attr_count);
 	system("pause");*/
-	
+	params confParams;
 	//theor_balance_test(3, 21);
-
+	read_conf(confParams);
 
 	cout << fixed;
     cout << setprecision(3);
+
+	string outFileName = to_string((long long)confParams.N_min) + "_" + to_string((long long)confParams.N_max) + "_" 
+		+ to_string((long long)confParams.attr_min) + "_"	+ to_string((long long)confParams.attr_max) + "_"
+		+ to_string((long double)confParams.p) + "_" 
+		+ to_string((long long)confParams.I) + "_" + confParams.dynamicsType + ".txt";
+
 	
-	std::ofstream out("out.txt");
+	
+	std::ofstream out(outFileName.c_str());
+	if (!out){
+		cout << "Error of file creation" << endl;
+	}
+
 	if (TO_FILE){
+		cout << "OutFileName: " << outFileName << endl;
 		std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
 		std::cout.rdbuf(out.rdbuf()); //redirect std::cout to out.txt!
 	}
@@ -109,12 +123,42 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	srand ((unsigned)time(NULL));
 
-	HeiderGraph G(20, 3, "complete");
+	for (int N = confParams.N_min; N <= confParams.N_max; N+= confParams.N_step){
+		int printEvery = -1;
+		for (int i = 0; i < confParams.printEvery.size(); ++i){
+			if (N <= confParams.printEvery[i].first){
+				printEvery = confParams.printEvery[i].first;
+				break;
+			}
+		}
+		if (printEvery == -1)
+			printEvery = confParams.printEveryLast;
 
-	for (int i = 0; i < 10; ++i){
-		G.AntalDynamics(10000);
-		G.RandomInit();
+		for (int attr = confParams.attr_min; attr <= confParams.attr_max; attr += confParams.attr_step)
+		{
+			cout << "N: " << N << " d: " << attr << endl;
+			//HeiderGraph G(N, attr, "complete", "attrRandom");
+			//HeiderGraph G(N, attr, "complete", "attrChoice");
+			HeiderGraph G(N, attr, TStr(confParams.graphType.c_str()), TStr(confParams.dynamicsType.c_str()));
+
+			Stat statInfo;
+
+			for (int i = 0; i < confParams.I; ++i){
+				if (INST_KEEP)
+					cout << "INSTANCE:  " << i << endl;
+				int iter = 0;
+				double bPart = 0;
+				G.AntalDynamics(confParams.maxIter, confParams.p, iter, bPart, printEvery, i);
+				statInfo.AddIterationsVal(iter);
+				G.RandomInit();
+				//system("pause");
+			}
+			cout << "Mean iterations to converge: " << statInfo.GetMeanIterations() << " std = " << statInfo.GetSigmaIterations() << endl;
+			cout << endl;
+		}
 	}
+
+
 
 	/* BALANCE TEST */
 	//const int I = 30;
@@ -130,8 +174,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	//	attrVals.push_back(i);
 
 	//balance_test(NVals, attrVals, I);
-
 	system("pause");
+	out.close();
 	return 0;
 }
 
