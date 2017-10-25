@@ -37,18 +37,24 @@ class HeiderGraph
 	void ChangeSignAttrChoice(int& node1, int& node2, bool isPlusToMinus);
 	void ChangeSignAttrRandom(int& node1, int& node2, bool isPlusToMinus);
 	void ChangeSignTarget(int& node1, int& node2, bool isPlusToMinus);
+	void ChangeSignAttrRandomCount(int& node1, int& node2, bool isPlusToMinus);
+	void ChangeSignAttrMax(int& node1, int& node2, bool isPlusToMinus);
 	void GetDiffAttrV(int& node1, int& node2, TIntV& diffAttrIndV);
 	void GetSimAttrV(int& node1, int& node2, TIntV& simAttrIndV);
 	void SafeAttrModification(int& node, int& attrInd);
 	void GetStat(int& node, std::vector<int>& oldNbrWeights, std::vector<int>&oldNbrCaseCounts, int& oldNbrBalancedCount, int& oldNbrImbalancedCount,
 		int& oldNbrPositiveWCount, int& oldNbrNegativeWCount);
 	TStr GetStrTriadType(int triadType);
+	int GetLargestGroupSize();
+	void PrintWeightMatrix();
+	void Mutate(double pm);
 	int balancedCount;
 	int imbalancedCount;
 	int positiveWeightsCount;
 	int negativeWeightsCount;
 	int triads;
-	/* if an attribute was modified and we did not recalculate caseCount, balanced/imbalancedCount, positive/negativeWeightsCount, 
+	/* if an attribute was modified and we did not recalculate caseCount, 
+	balanced/imbalancedCount, positive/negativeWeightsCount, 
 	wasModified is set to true, and after recalculation is set to false*/
 	bool wasModified;
 	void SaveFinalState(double p, int idRun);
@@ -56,7 +62,7 @@ public:
 	HeiderGraph(void);
 	HeiderGraph(int N, int d, TStr graphType, TStr changeSignType);
 	/* types = [attrChoice, attrRandom] */
-	void AntalDynamics(int maxIterCount, double p, int& iter, double bPart, int printEvery, int idRun = 0 );
+	void AntalDynamics(int maxIterCount, double p, int& iter, int&largestGroupSize, double bPart, int printEvery, int idRun = 0 );
 	void RandomInit();
 	void PrintNodeAttrs(int i);
 	void PrintTriadsInfo();

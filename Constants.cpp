@@ -92,9 +92,9 @@ void read_conf(params& confParams){
 					
 					if (desc_end != std::string::npos){
 						std::string first(s.begin(), s.begin()+desc_end);
-						int val1 = std::atoi(s.c_str());
+						int val1 = std::atoi(first.c_str());
 						std::string second(s.begin()+desc_end+1, s.end());
-						int val2 = std::atoi(s.c_str());
+						int val2 = std::atoi(second.c_str());
 						confParams.printEvery.push_back(std::make_pair(val1, val2));
 					}
 					else{

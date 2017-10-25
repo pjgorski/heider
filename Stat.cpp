@@ -2,31 +2,35 @@
 #include "Stat.h"
 
 
+using namespace std;
 
-
-double Stat::GetMeanIterations()
+double Stat::Mean( vector<int>& vec )
 {
-	if (iterations.size() == 0)
-		return -1;
-	else{
-		mean_iterations	 = 0;
-		for (int i = 0; i < iterations.size(); ++i)
-			mean_iterations += iterations[i];
+	if (vec.size() == 0){
+		cout << "Error! Calculating mean of a vector with zero count" << endl;
+		exit(ZERO_VECTOR_MEAN);
 	}
-	mean_iterations /= iterations.size();
-	return mean_iterations;
+
+	double mean = 0;
+	for (int i = 0; i < vec.size(); ++i)
+		mean += vec[i];
+
+	mean /= vec.size();
+	return mean;
 }
 
-double Stat::GetSigmaIterations()
+double Stat::Sigma( vector<int>& vec )
 {
-	GetMeanIterations();
-	sigma_iterations = 0;
-	for (int i = 0; i < iterations.size(); ++i)
-		sigma_iterations += pow(iterations[i]-mean_iterations, 2.0);
-	sigma_iterations /= (iterations.size()-1);
-	sigma_iterations = sqrt(sigma_iterations);
-	return sigma_iterations;
+	double mean = Mean(vec);
+	double sigma = 0;
+	for (int i = 0; i < vec.size(); ++i)
+		sigma += pow(vec[i]-mean, 2.0);
+	sigma /= (vec.size()-1);
+	sigma = sqrt(sigma);
+	return sigma;
 }
+
+
 
 Stat::~Stat(void)
 {

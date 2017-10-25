@@ -101,10 +101,15 @@ int _tmain(int argc, _TCHAR* argv[])
 	cout << fixed;
     cout << setprecision(3);
 
+	srand((unsigned)time(NULL));
+	long long int rndInstanceNumber = rand()%1000 + 5;
+
 	string outFileName = to_string((long long)confParams.N_min) + "_" + to_string((long long)confParams.N_max) + "_" 
 		+ to_string((long long)confParams.attr_min) + "_"	+ to_string((long long)confParams.attr_max) + "_"
-		+ to_string((long double)confParams.p) + "_" 
-		+ to_string((long long)confParams.I) + "_" + confParams.dynamicsType + ".txt";
+		+ to_string((long double)confParams.p);
+	if (confParams.p == 1 || confParams.p == 0)
+		outFileName += ".0";
+		outFileName += "_"  + to_string((long long)confParams.I) + "_" + confParams.dynamicsType + "_" + to_string(rndInstanceNumber) + ".txt";
 
 	
 	
@@ -146,14 +151,16 @@ int _tmain(int argc, _TCHAR* argv[])
 			for (int i = 0; i < confParams.I; ++i){
 				if (INST_KEEP)
 					cout << "INSTANCE:  " << i << endl;
-				int iter = 0;
+				int iter = 0, largestGroupSize = 0;
 				double bPart = 0;
-				G.AntalDynamics(confParams.maxIter, confParams.p, iter, bPart, printEvery, i);
+				G.AntalDynamics(confParams.maxIter, confParams.p, iter, largestGroupSize, bPart, printEvery, i);
 				statInfo.AddIterationsVal(iter);
+				statInfo.AddLargestGroupSizeVal(largestGroupSize);
 				G.RandomInit();
 				//system("pause");
 			}
 			cout << "Mean iterations to converge: " << statInfo.GetMeanIterations() << " std = " << statInfo.GetSigmaIterations() << endl;
+			cout << "Mean largest group size: " << statInfo.GetMeanLargestGroupSize() << " std = " << statInfo.GetSigmaLargestGroupSize() << endl;
 			cout << endl;
 		}
 	}

@@ -7,14 +7,18 @@
 class Stat
 {
 	std::vector<int> iterations;
-	double mean_iterations;
-	double sigma_iterations;
+	std::vector<int> largestGroupSizes;
+	double Mean(std::vector<int>& vec);
+	double Sigma(std::vector<int>& vec);
 public:
-	Stat(void) {mean_iterations = 0; sigma_iterations = 0;};
+	Stat(void) {};
 	void AddIterationsVal(int val) {iterations.push_back(val);}
-	void Clear() {iterations.clear();}
-	double GetMeanIterations();
-	double GetSigmaIterations();
+	void AddLargestGroupSizeVal(int val) {largestGroupSizes.push_back(val);}
+	void Clear() {iterations.clear();largestGroupSizes.clear();}
+	double GetMeanIterations() {return Mean(iterations);}
+	double GetSigmaIterations() {return Sigma(iterations);}
+	double GetMeanLargestGroupSize() {return Mean(largestGroupSizes);};
+	double GetSigmaLargestGroupSize(){return Sigma(largestGroupSizes);}
 	~Stat(void);
 };
 
