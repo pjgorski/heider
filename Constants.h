@@ -15,6 +15,8 @@ const int NON_TRIAD = 4;
 const int ERR_TRANSFORM = 5;
 const int WRONG_CONF_FILE = 6;
 const int ZERO_VECTOR_MEAN = 7;
+const int WRONG_BASE_NODE_ID = 8;
+const int UNSUPPORTED_CHANGE_SIGN_TYPE = 9;
 
 static const char* file = "config.txt";
 

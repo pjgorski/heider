@@ -11,7 +11,8 @@
 #include "Constants.h"
 
 #include <vector>
-
+#include <map>
+#include <string>
 
 
 class HeiderGraph
@@ -25,23 +26,29 @@ class HeiderGraph
 	TStr changeSignType;
 	std::vector<TStr> attrNames;
 	std::vector<int> caseCounts;
+	std::map<int,int> personType;
 	int GetWeight(int node1, int node2);
 	/* calculate number of different balance cases */
 	void CalcCaseCounts();
 	bool IsBalancedNode(int node1, int node2, int node3, int& case_num);
 	bool IsBalanced(int ij_rel, int jk_rel, int ik_rel, int& case_num);
 	void GetRandomTriad(int &node1, int& node2, int& node3);
+	/* get random triad using neighbors of node1 */ 
+	void GetRandomTriadForNode(const int &node1, int& node2, int& node3);
 	int GetTriadType(int& node1, int& node2, int& node3);
 	void ChangeSign(int& node1, int& node2, int& node3, bool isPlusToMinus);
-	void ChangeSign(int& node1, int& node2, bool isPlusToMinus);
+	void ChangeSign(int& node1, int& node2, bool isPlusToMinus, std::string type = "attrRandom");
 	void ChangeSignAttrChoice(int& node1, int& node2, bool isPlusToMinus);
 	void ChangeSignAttrRandom(int& node1, int& node2, bool isPlusToMinus);
+	void HeiderGraph::ChangeSignAttrRandom (int& node1, int& node2, bool isPlusToMinus, int first);
 	void ChangeSignTarget(int& node1, int& node2, bool isPlusToMinus);
 	void ChangeSignAttrRandomCount(int& node1, int& node2, bool isPlusToMinus);
 	void ChangeSignAttrMax(int& node1, int& node2, bool isPlusToMinus);
 	void GetDiffAttrV(int& node1, int& node2, TIntV& diffAttrIndV);
 	void GetSimAttrV(int& node1, int& node2, TIntV& simAttrIndV);
 	void SafeAttrModification(int& node, int& attrInd);
+	void SetIntrovertsExtroverts(double p);
+	int GetNbrRelations(int node);
 	void GetStat(int& node, std::vector<int>& oldNbrWeights, std::vector<int>&oldNbrCaseCounts, int& oldNbrBalancedCount, int& oldNbrImbalancedCount,
 		int& oldNbrPositiveWCount, int& oldNbrNegativeWCount);
 	TStr GetStrTriadType(int triadType);
@@ -61,8 +68,9 @@ class HeiderGraph
 public:
 	HeiderGraph(void);
 	HeiderGraph(int N, int d, TStr graphType, TStr changeSignType);
-	/* types = [attrChoice, attrRandom] */
+	/* types = [attrChoice, attrRandom, attrMax, attrRandomCount] */
 	void AntalDynamics(int maxIterCount, double p, int& iter, int&largestGroupSize, double bPart, int printEvery, int idRun = 0 );
+	void IntrovertExtrovertDynamics(int maxIterCount, double p, int& iter, int& largestGroupSize, double bPart, int printEvery, int idRun = 0);
 	void RandomInit();
 	void PrintNodeAttrs(int i);
 	void PrintTriadsInfo();

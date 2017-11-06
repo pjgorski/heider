@@ -128,6 +128,8 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	srand ((unsigned)time(NULL));
 
+	//for (int p = 0; p <= 1; p += confParams.p)
+
 	for (int N = confParams.N_min; N <= confParams.N_max; N+= confParams.N_step){
 		int printEvery = -1;
 		for (int i = 0; i < confParams.printEvery.size(); ++i){
@@ -148,12 +150,16 @@ int _tmain(int argc, _TCHAR* argv[])
 
 			Stat statInfo;
 
+						
 			for (int i = 0; i < confParams.I; ++i){
 				if (INST_KEEP)
 					cout << "INSTANCE:  " << i << endl;
 				int iter = 0, largestGroupSize = 0;
 				double bPart = 0;
-				G.AntalDynamics(confParams.maxIter, confParams.p, iter, largestGroupSize, bPart, printEvery, i);
+				if (confParams.dynamicsType.find("introExtro") != string::npos)
+					G.IntrovertExtrovertDynamics(confParams.maxIter, confParams.p, iter, largestGroupSize, bPart, printEvery, i);
+				else
+					G.AntalDynamics(confParams.maxIter, confParams.p, iter, largestGroupSize, bPart, printEvery, i);
 				statInfo.AddIterationsVal(iter);
 				statInfo.AddLargestGroupSizeVal(largestGroupSize);
 				G.RandomInit();
