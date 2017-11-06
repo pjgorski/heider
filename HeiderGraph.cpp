@@ -83,9 +83,9 @@ void HeiderGraph::GetRandomTriadForNode( const int &node, int& nbr1, int& nbr2 )
 	/* get indexes of two random edges of node */
 	while (nbr1 == node || nbr2 == node || nbr1 == nbr2){
 		if (nbr1 == node)
-			nbr1 = rnd.GetUniDevInt(0, nbrCount);
+			nbr1 = rnd.GetUniDevInt(0, nbrCount-1);
 		if (nbr2 == node || nbr2 == nbr1)
-			nbr2 = rnd.GetUniDevInt(0, nbrCount);
+			nbr2 = rnd.GetUniDevInt(0, nbrCount-1);
 	}
 	/* get neighbors by indexes */
 	nbr1 = nodeI.GetOutNId(nbr1);
@@ -192,6 +192,37 @@ void HeiderGraph::ChangeSign( int& node1, int& node2, bool isPlusToMinus, string
 		ChangeSignAttrMax(node1, node2, isPlusToMinus);
 }
 
+void HeiderGraph::ChangeSign( int& node1, int& node2, bool isPlusToMinus, int first, std::string type  )
+{
+	if (first != node1 && first != node2){
+		cout << "Attempt to change attribute in incorrect node, node 1 =  " << node1 
+			<< " node2 = " << node2 << " base node: " << first << endl;
+		system("pause");
+		exit(WRONG_BASE_NODE_ID);
+	}
+	int second = node2;
+
+	if (first == node2)
+		second = node1;
+
+	/* if type = attrChoice */
+	if (type.find("attrChoice") != string::npos){
+		ChangeSignAttrChoice(first, second, isPlusToMinus);
+	}
+	else if (type.find("attrRandom") != string::npos){
+		ChangeSignAttrRandom (first, second, isPlusToMinus);
+	}
+	else if (type.find("attrMax") != string::npos){
+		ChangeSignAttrMax (first, second, isPlusToMinus);
+	}
+	else{
+		cout << "Unsupported type of changing sign, dynamics: " << type 
+			<< endl;
+		system("pause");
+		exit(UNSUPPORTED_CHANGE_SIGN_TYPE);
+	}
+}
+
 void HeiderGraph::ChangeSignAttrChoice( int& node1, int& node2, bool isPlusToMinus )
 {
 	TIntV attrIndV;
@@ -230,7 +261,7 @@ void HeiderGraph::ChangeSignAttrChoice( int& node1, int& node2, bool isPlusToMin
 /* change random attribute to increase of decrease similarity of attributes
    attribute is changed in first node
 */
-void HeiderGraph::ChangeSignAttrRandom (int& node1, int& node2, bool isPlusToMinus, int first){
+void HeiderGraph::ChangeSign (int& node1, int& node2, bool isPlusToMinus, int first){
 	if (first != node1 && first != node2){
 		cout << "Attempt to change attribute in incorrect node, node 1 =  " << node1 
 			<< " node2 = " << node2 << " base node: " << first << endl;
@@ -576,7 +607,7 @@ void HeiderGraph::AntalDynamics( int maxIterCount, double p, int& iter, int& lar
 					cout << "Iteration: " << i << " (balanced)" << " Balanced part: " << GetBalancedPart() << " Imbalanced part: " << GetImbalancedPart() << endl;
 				//system("pause");
 			}
-			//continue;
+			continue;
 		}
 		int newTriadType = -1;
 		bool plusToMinus = false; 
@@ -707,39 +738,32 @@ void HeiderGraph::IntrovertExtrovertDynamics( int maxIterCount, double p, int& i
 			sign3 = GetWeight(nbr1, nbr2);
 
 		int caseNum = -1;
-		//cout << personType[node] << endl;
-		// if a person is an introvert
-		if (IsBalanced(sign1, sign2, sign3, caseNum))
+		int triadType = GetTriadType(node, nbr1, nbr2);
+		// string type = personType[node] == -1? "attrRandom": "attrChoice";
+		
+
+		if (IsBalanced(sign1, sign2, sign3, caseNum)){
 			continue;
+		}
 		/* --- case */
-		else if (caseNum == 0){
+		else if (triadType == 3){
 			int nbrToChange = rnd.GetUniDevInt(1);
 			if (nbrToChange == 0)
-				ChangeSignAttrRandom(node, nbr1, false, node);
+				ChangeSign(node, nbr1, false, node); //, type);
 			else
-				ChangeSignAttrRandom(node, nbr2, false, node);
+				ChangeSign(node, nbr2, false, node); //, type);
 		}
 		/* ++- case */
 		else {
-			/* if person is introvert */
-			if (personType[node] == -1){
-				int nbrToChange = rnd.GetUniDevInt(1);
-				if (nbrToChange == 0)
-					nbrToChange = nbr1;
-				else 
-					nbrToChange = nbr2;
-				if (sign1 == -1)
-					ChangeSignAttrRandom(node, nbrToChange, false, node);
-				else
-					ChangeSignAttrRandom(node, nbrToChange, true, node);
-			}
-			/* if a person is extravert */
-			else{
-				if (sign1 == 1 && sign2 == 1)
-					continue;
-				int nbrToChange = sign1 == -1? nbr1: nbr2;
-				ChangeSignAttrRandom(node, nbrToChange, false, node);
-			}
+			int nbrToChange = rnd.GetUniDevInt(1);
+			if (nbrToChange == 0)
+				nbrToChange = nbr1;
+			else 
+				nbrToChange = nbr2;
+			if (sign1 == -1)
+				ChangeSign(node, nbrToChange, false, node);//, type);
+			else if (personType[node] == -1)
+				ChangeSign(node, nbrToChange, true, node);//, type);
 		}
 		
 		
@@ -776,6 +800,12 @@ void HeiderGraph::RandomInit()
 			int val = rand()%2;
 			if (val == 0)
 				val = -1;
+			/*int val = 0;
+			double r = rnd.GetUniDev();
+			if (r >= 0.7)
+				val = -1;
+			else
+				val = 1;*/
 			G->AddIntAttrDatN(i, val, attrNames[j]);
 		}
 	}

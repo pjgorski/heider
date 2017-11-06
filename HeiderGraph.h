@@ -38,9 +38,10 @@ class HeiderGraph
 	int GetTriadType(int& node1, int& node2, int& node3);
 	void ChangeSign(int& node1, int& node2, int& node3, bool isPlusToMinus);
 	void ChangeSign(int& node1, int& node2, bool isPlusToMinus, std::string type = "attrRandom");
+	void ChangeSign(int& node1, int& node2, bool isPlusToMinus, int first, std::string type);
+	void ChangeSign (int& node1, int& node2, bool isPlusToMinus, int first);
 	void ChangeSignAttrChoice(int& node1, int& node2, bool isPlusToMinus);
 	void ChangeSignAttrRandom(int& node1, int& node2, bool isPlusToMinus);
-	void HeiderGraph::ChangeSignAttrRandom (int& node1, int& node2, bool isPlusToMinus, int first);
 	void ChangeSignTarget(int& node1, int& node2, bool isPlusToMinus);
 	void ChangeSignAttrRandomCount(int& node1, int& node2, bool isPlusToMinus);
 	void ChangeSignAttrMax(int& node1, int& node2, bool isPlusToMinus);

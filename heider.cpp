@@ -89,6 +89,36 @@ void theor_balance_test(int dmin, int dmax){
 	system("pause");
 }
 
+std::ofstream out;
+
+void create_file(const params& confParams, const double p){
+	long long int rndInstanceNumber = rand()%1000 + 5;
+
+	_Longlong N_min = (_Longlong)confParams.N_min, N_max = (_Longlong)confParams.N_max,
+					attr_min = (_Longlong)confParams.attr_min, attr_max = (_Longlong)confParams.attr_max;
+	long double p_ld = (long double)p;
+	wstring outFileName = to_wstring(N_min) + L"_" + to_wstring(N_max) + L"_" 
+		+ to_wstring(attr_min) + L"_"	+ to_wstring(attr_max) + L"_" + to_wstring(p_ld);
+	if (p == 1 || p == 0)
+		outFileName += L".0";
+	wstring dynType(confParams.dynamicsType.begin(), confParams.dynamicsType.end());
+	outFileName += L"_"  + to_wstring((long long)confParams.I) + L"_" + dynType + L"_" + to_wstring(rndInstanceNumber) + L".txt";
+
+	//const wchar_t * wname = outFileName.c_str();
+
+	out.open(outFileName.c_str(), 'w');
+
+	if (!out){
+		cout << "Error of file creation" << endl;
+	}
+
+	if (TO_FILE){
+		wcout << "OutFileName: " << outFileName.c_str() << endl;
+		std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
+		std::cout.rdbuf(out.rdbuf()); //redirect std::cout to out.txt!
+	}
+}
+
 int _tmain(int argc, _TCHAR* argv[])
 {
 	/*const int attr_count = 5;
@@ -102,74 +132,56 @@ int _tmain(int argc, _TCHAR* argv[])
     cout << setprecision(3);
 
 	srand((unsigned)time(NULL));
-	long long int rndInstanceNumber = rand()%1000 + 5;
-
-	string outFileName = to_string((long long)confParams.N_min) + "_" + to_string((long long)confParams.N_max) + "_" 
-		+ to_string((long long)confParams.attr_min) + "_"	+ to_string((long long)confParams.attr_max) + "_"
-		+ to_string((long double)confParams.p);
-	if (confParams.p == 1 || confParams.p == 0)
-		outFileName += ".0";
-		outFileName += "_"  + to_string((long long)confParams.I) + "_" + confParams.dynamicsType + "_" + to_string(rndInstanceNumber) + ".txt";
-
 	
-	
-	std::ofstream out(outFileName.c_str());
-	if (!out){
-		cout << "Error of file creation" << endl;
-	}
-
-	if (TO_FILE){
-		cout << "OutFileName: " << outFileName << endl;
-		std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
-		std::cout.rdbuf(out.rdbuf()); //redirect std::cout to out.txt!
-	}
 
 	//freopen("out.txt","w",stdout);
 
-	srand ((unsigned)time(NULL));
+	
 
-	//for (int p = 0; p <= 1; p += confParams.p)
-
-	for (int N = confParams.N_min; N <= confParams.N_max; N+= confParams.N_step){
-		int printEvery = -1;
-		for (int i = 0; i < confParams.printEvery.size(); ++i){
-			if (N <= confParams.printEvery[i].first){
-				printEvery = confParams.printEvery[i].second;
-				break;
+	for (double p = 0; p <= 1; p += confParams.p){
+		create_file(confParams, p);
+		for (int N = confParams.N_min; N <= confParams.N_max; N+= confParams.N_step){
+			int printEvery = -1;
+			for (int i = 0; i < confParams.printEvery.size(); ++i){
+				if (N <= confParams.printEvery[i].first){
+					printEvery = confParams.printEvery[i].second;
+					break;
+				}
 			}
-		}
-		if (printEvery == -1)
-			printEvery = confParams.printEveryLast;
+			if (printEvery == -1)
+				printEvery = confParams.printEveryLast;
 
-		for (int attr = confParams.attr_min; attr <= confParams.attr_max; attr += confParams.attr_step)
-		{
-			cout << "N: " << N << " d: " << attr << endl;
-			//HeiderGraph G(N, attr, "complete", "attrRandom");
-			//HeiderGraph G(N, attr, "complete", "attrChoice");
-			HeiderGraph G(N, attr, TStr(confParams.graphType.c_str()), TStr(confParams.dynamicsType.c_str()));
+			for (int attr = confParams.attr_min; attr <= confParams.attr_max; attr += confParams.attr_step)
+			{
+				cout << "N: " << N << " d: " << attr << endl;
+				//HeiderGraph G(N, attr, "complete", "attrRandom");
+				//HeiderGraph G(N, attr, "complete", "attrChoice");
+				HeiderGraph G(N, attr, TStr(confParams.graphType.c_str()), TStr(confParams.dynamicsType.c_str()));
 
-			Stat statInfo;
+				Stat statInfo;
 
 						
-			for (int i = 0; i < confParams.I; ++i){
-				if (INST_KEEP)
-					cout << "INSTANCE:  " << i << endl;
-				int iter = 0, largestGroupSize = 0;
-				double bPart = 0;
-				if (confParams.dynamicsType.find("introExtro") != string::npos)
-					G.IntrovertExtrovertDynamics(confParams.maxIter, confParams.p, iter, largestGroupSize, bPart, printEvery, i);
-				else
-					G.AntalDynamics(confParams.maxIter, confParams.p, iter, largestGroupSize, bPart, printEvery, i);
-				statInfo.AddIterationsVal(iter);
-				statInfo.AddLargestGroupSizeVal(largestGroupSize);
-				G.RandomInit();
-				//system("pause");
+				for (int i = 0; i < confParams.I; ++i){
+					if (INST_KEEP)
+						cout << "INSTANCE:  " << i << endl;
+					int iter = 0, largestGroupSize = 0;
+					double bPart = 0;
+					if (confParams.dynamicsType.find("introExtro") != string::npos)
+						G.IntrovertExtrovertDynamics(confParams.maxIter, p, iter, largestGroupSize, bPart, printEvery, i);
+					else
+						G.AntalDynamics(confParams.maxIter, p, iter, largestGroupSize, bPart, printEvery, i);
+					statInfo.AddIterationsVal(iter);
+					statInfo.AddLargestGroupSizeVal(largestGroupSize);
+					G.RandomInit();
+					//system("pause");
+				}
+				cout << "Mean iterations to converge: " << statInfo.GetMeanIterations() << " std = " << statInfo.GetSigmaIterations() << endl;
+				cout << "Mean largest group size: " << statInfo.GetMeanLargestGroupSize() << " std = " << statInfo.GetSigmaLargestGroupSize() << endl;
+				cout << endl;
 			}
-			cout << "Mean iterations to converge: " << statInfo.GetMeanIterations() << " std = " << statInfo.GetSigmaIterations() << endl;
-			cout << "Mean largest group size: " << statInfo.GetMeanLargestGroupSize() << " std = " << statInfo.GetSigmaLargestGroupSize() << endl;
-			cout << endl;
 		}
-	}
+		out.close();
+	} // p
 
 
 
@@ -188,7 +200,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	//balance_test(NVals, attrVals, I);
 	system("pause");
-	out.close();
+	//out.close();
 	return 0;
 }
 
