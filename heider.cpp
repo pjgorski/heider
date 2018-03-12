@@ -1,4 +1,4 @@
-// heider.cpp: определяет точку входа для консольного приложения.
+// heider.cpp: пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
 //
 
 #include "stdafx.h"
@@ -14,6 +14,9 @@
 #include <iomanip>
 #include <fstream>
 #include <vector>
+
+
+typedef long long _Longlong;
 
 
 using namespace std;

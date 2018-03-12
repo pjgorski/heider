@@ -1,27 +1,44 @@
 #pragma once
 
-#include "windows.h"
-#include "base.h"
-#include "gbase.h"
-#include "attr.h"
-#include "graph.h"
-#include "network.h"
-#include "ggen.h"
-#include "triad.h"
-#include "Constants.h"
+//#include "windows.h"
+//#include <base.h>
+//#include <gbase.h>
+//#include "attr.h"
+//#include "graph.h"
+//#include "network.h"
+//#include "ggen.h"
+//#include "triad.h"
+#include "params.hpp"
 
 #include <vector>
 #include <map>
 #include <string>
+#include <cmath>
+#include "stdafx.h"
 
+//#include <cstdint>
+#include <x86intrin.h>
+
+//inline uint64_t nthset(uint64_t x, unsigned n) {
+//    return _pdep_u64(1ULL << n, x);
+//}
+
+inline unsigned builtinPopcount(unsigned bb)
+{
+    return __builtin_popcountll(bb);
+}
+
+
+typedef TVec<TIntV > TIntVecV;
 
 class HeiderGraph
 {
-	PNEANet G;
-	TRnd rnd;
+	PNEANet G; // graph
+	TRnd rnd; //??
 	int N;
 	int E;
 	int d;
+	params confParams;
 	TStr graphType;
 	TStr changeSignType;
 	std::vector<TStr> attrNames;
@@ -35,6 +52,7 @@ class HeiderGraph
 	void GetRandomTriad(int &node1, int& node2, int& node3);
 	/* get random triad using neighbors of node1 */ 
 	void GetRandomTriadForNode(const int &node1, int& node2, int& node3);
+	/* triad type is a number of unfriendly links */
 	int GetTriadType(int& node1, int& node2, int& node3);
 	void ChangeSign(int& node1, int& node2, int& node3, bool isPlusToMinus);
 	void ChangeSign(int& node1, int& node2, bool isPlusToMinus, std::string type = "attrRandom");
@@ -42,13 +60,10 @@ class HeiderGraph
 	void ChangeSign (int& node1, int& node2, bool isPlusToMinus, int first);
 	void ChangeSignAttrChoice(int& node1, int& node2, bool isPlusToMinus);
 	void ChangeSignAttrRandom(int& node1, int& node2, bool isPlusToMinus);
-	void ChangeSignTarget(int& node1, int& node2, bool isPlusToMinus);
 	void ChangeSignAttrRandomCount(int& node1, int& node2, bool isPlusToMinus);
 	void ChangeSignAttrMax(int& node1, int& node2, bool isPlusToMinus);
-	void GetDiffAttrV(int& node1, int& node2, TIntV& diffAttrIndV);
-	void GetSimAttrV(int& node1, int& node2, TIntV& simAttrIndV);
-	void SafeAttrModification(int& node, int& attrInd);
-	void SetIntrovertsExtroverts(double p);
+	TIntV GetDiffAttrV(int& node1, int& node2, TIntV& diffAttrIndV);
+	TIntV GetSimAttrV(int& node1, int& node2, TIntV& simAttrIndV);
 	int GetNbrRelations(int node);
 	void GetStat(int& node, std::vector<int>& oldNbrWeights, std::vector<int>&oldNbrCaseCounts, int& oldNbrBalancedCount, int& oldNbrImbalancedCount,
 		int& oldNbrPositiveWCount, int& oldNbrNegativeWCount);
@@ -66,12 +81,17 @@ class HeiderGraph
 	wasModified is set to true, and after recalculation is set to false*/
 	bool wasModified;
 	void SaveFinalState(double p, int idRun);
+
+	TIntVecV attr; //first index is attribute than node.
+
+
 public:
 	HeiderGraph(void);
-	HeiderGraph(int N, int d, TStr graphType, TStr changeSignType);
+	HeiderGraph(int N, int d,TRnd r,  TStr graphType, TStr changeSignType);
 	/* types = [attrChoice, attrRandom, attrMax, attrRandomCount] */
 	void AntalDynamics(int maxIterCount, double p, int& iter, int&largestGroupSize, double bPart, int printEvery, int idRun = 0 );
-	void IntrovertExtrovertDynamics(int maxIterCount, double p, int& iter, int& largestGroupSize, double bPart, int printEvery, int idRun = 0);
+
+	void setParams(params& p){confParams = p;}
 	void RandomInit();
 	void PrintNodeAttrs(int i);
 	void PrintTriadsInfo();

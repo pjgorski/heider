@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+#include "stdafx.h"
 #include "HeiderGraph.h"
 
 #include <string>
@@ -11,28 +11,46 @@ using namespace std;
 
 HeiderGraph::HeiderGraph(void)
 {
+	N = 0;
+	E = 0;
+	d = 0;
+	balancedCount = 0;
+	imbalancedCount = 0;
+	positiveWeightsCount = 0;
+	negativeWeightsCount = 0;
+	triads = 0;
+	wasModified = false;
 }
 
 /* type = ["complete"] */
-HeiderGraph::HeiderGraph( int N, int d, TStr graphType, TStr changeSignType )
+HeiderGraph::HeiderGraph( int N, int d, TRnd r, TStr graphType, TStr changeSignType )
 {
 	this->N = N;
 	this->d = d;
-	this->graphType = graphType;
-	this->changeSignType = changeSignType;
-	TRnd r(time(NULL), rand());
+	std::string s = graphType.CStr();
+	//s.erase(s.end()-1, s.end());
+	this->graphType = s.c_str();
+	//cout << graphType << endl;
+	std::string dyn = changeSignType.CStr();
+	//dyn.erase(dyn.end()-1, dyn.end());
+	this->changeSignType = dyn.c_str();
+
 	rnd = r;
-	if (graphType == "complete")
+	
+	if (this->graphType == "complete"){
 		G = TSnap::GenFull<PNEANet>(N);
+	}
 	else{
-		cout << "Type " << graphType.CStr() << " of HeiderGraph is not supported" << endl;
+		std::cout << "Type " << s.c_str() << " of HeiderGraph is not supported" << std::endl;
 		exit(UNSUPPORTED_GRAPH_TYPE);
 	}
 
 	this->E = G->GetEdges();
 	for (int i = 0; i < d; ++i){
-		string s = "attr" + to_string((long long)i);
-		attrNames.push_back(TStr(s.c_str()));
+	//int i = 0;
+
+		std::string s2 = "attr" + ToString((long long)i);
+		attrNames.push_back(TStr(s2.c_str()));
 		G->AddIntAttrN(attrNames[i],0);
 	}
 	for (int i = 0; i < BALANCE_CASE_COUNT; ++i)
@@ -66,8 +84,34 @@ void HeiderGraph::GetRandomTriad(int &node1, int& node2, int& node3){
 			triadFound = true;
 		}
 	}
+//	TIntV t;
+//	G->GetNIdV(t);
+//
+//	int pos1 = rnd.GetUniDevInt(0, t.Len() - 1),
+//			pos2 = rnd.GetUniDevInt(0, t.Len() - 2),
+//			pos3 = rnd.GetUniDevInt(0, t.Len() - 3);
+//
+//	node1 = int(t.GetVal(pos1));
+//	t.Del(pos1);
+//
+//
+//	node2 = int(t.GetVal(pos2));
+//	t.Del(pos2);
+//
+//
+//	node3 = int(t.GetVal(pos3));
+	//t.Del(pos3);
+
+//	//We assume complete graph, so above for now is unnecessary
+	//TNEANet::TEdgeI rndEI = G->GetRndEI(rnd);
+			//int rndSrc = rndEI.GetSrcNId(), rndDest = rndEI.GetDstNId();
+			//TInt
+//	node1 = G->GetRndNI(rnd).GetId();
+//	node2 = G->GetRndNI(rnd).GetId();
+//	node3 = G->GetRndNI(rnd).GetId();
 }
 
+//@not used
 void HeiderGraph::GetRandomTriadForNode( const int &node, int& nbr1, int& nbr2 )
 {
 	TIntV nbrs;
@@ -97,7 +141,7 @@ int HeiderGraph::GetTriadType( int& node1, int& node2, int& node3 )
 {
 	if (!G->IsEdge(node1, node2) || !G->IsEdge(node2, node3) || !G->IsEdge(node1, node3)) {
 		cout << "Calculating balance for a non-triad" << endl;
-		system("pause");
+		//system("pause");
 		exit(NON_TRIAD);
 	}
 
@@ -178,14 +222,13 @@ void HeiderGraph::ChangeSign( int& node1, int& node2, int& node3, bool isPlusToM
 
 void HeiderGraph::ChangeSign( int& node1, int& node2, bool isPlusToMinus, string type)
 {
-	/*PLEASE REMOVE THIS TERRIBLE ASSIGNMENT */
-	changeSignType = type.c_str();
+	/*to be refactored */
+	// changeSignType = type.c_str();
+	/*  type parameter is not used */
 	if (changeSignType == "attrChoice")
 		ChangeSignAttrChoice(node1, node2, isPlusToMinus);
 	else if (changeSignType == "attrRandom")
 		ChangeSignAttrRandom(node1, node2, isPlusToMinus);
-	else if (changeSignType == "target")
-		ChangeSignTarget(node1, node2, isPlusToMinus);
 	else if (changeSignType == "attrRandomCount")
 		ChangeSignAttrRandomCount(node1, node2, isPlusToMinus);
 	else if (changeSignType == "attrMax")
@@ -197,7 +240,7 @@ void HeiderGraph::ChangeSign( int& node1, int& node2, bool isPlusToMinus, int fi
 	if (first != node1 && first != node2){
 		cout << "Attempt to change attribute in incorrect node, node 1 =  " << node1 
 			<< " node2 = " << node2 << " base node: " << first << endl;
-		system("pause");
+		//system("pause");
 		exit(WRONG_BASE_NODE_ID);
 	}
 	int second = node2;
@@ -294,24 +337,58 @@ void HeiderGraph::ChangeSign (int& node1, int& node2, bool isPlusToMinus, int fi
 
 void HeiderGraph::ChangeSignAttrRandom( int& node1, int& node2, bool isPlusToMinus )
 {
-	TIntV attrIndV;
+	TIntV attrIndV, and_xor;
 	if (isPlusToMinus)
-		GetSimAttrV(node1, node2, attrIndV);
+		and_xor = GetSimAttrV(node1, node2, attrIndV);
 	else
-		GetDiffAttrV(node1, node2, attrIndV);
+		and_xor = GetDiffAttrV(node1, node2, attrIndV);
 
-	attrIndV.Shuffle(rnd);
-	int attrInd = attrIndV[0];
+	int r = rnd.GetUniDevInt(0, attrIndV.Len()-1);
+
+	//attrIndV.Shuffle(rnd);
+	//int attrInd = attrIndV[0];
 	int nodeToChange = rnd.GetUniDevInt(1,2);
 
+	int node;
 	if (nodeToChange == 1){
-		int val = G->GetIntAttrIndDatN(node1, attrInd);
-		G->AddIntAttrDatN(node1, val * (-1), attrNames[attrInd]);
+		//int val = G->GetIntAttrIndDatN(node1, attrInd);
+		//G->AddIntAttrDatN(node1, val * (-1), attrNames[attrInd]);
+
+node = node1;
 	}
 	else{
-		int val = G->GetIntAttrIndDatN(node2, attrInd);
-		G->AddIntAttrDatN(node2, val * (-1), attrNames[attrInd]);
+		//int val = G->GetIntAttrIndDatN(node2, attrInd);
+		//G->AddIntAttrDatN(node2, val * (-1), attrNames[attrInd]);
+		node = node2;
 	}
+
+	cout << "node1 and node2: " << node1 << " " << node2 << endl;
+
+	int pos = 0;
+	for (int i = 0, i2 = 0; i < and_xor.Len(); ++i){
+		int val = and_xor[i], j = 0;
+
+		while(val > 0 && pos <= r){
+			if ((val&1) == 1){
+				++pos;
+
+				if(pos > r){
+					cout << " " << attr[i][node] << endl;
+					int val2 = attr[i][node];
+					val2 ^= (1UL << j); //toggling bit
+					attr[i][node] = val2;
+					int val3 = G->GetIntAttrIndDatN(node, i2);
+					G->AddIntAttrDatN(node, val3 * (-1), attrNames[i2]);
+					cout << attr[i][node] << endl;
+				}
+			}
+			val = val >> 1;
+			++i2;
+			++j;
+		}
+	}
+
+
 
 	wasModified = true;
 }
@@ -319,86 +396,6 @@ void HeiderGraph::ChangeSignAttrRandom( int& node1, int& node2, bool isPlusToMin
 bool pairCompare(const pair<int, int>& a, const pair<int, int>& b){
 	return a.first < b.first;
 }
-
-void HeiderGraph::ChangeSignTarget( int& node1, int& node2, bool isPlusToMinus )
-{
-	TIntV attrIndV;
-	int minusesCount = 0, plusesCount = 0;
-	if (!isPlusToMinus){
-		GetDiffAttrV(node1, node2, attrIndV);
-		minusesCount = attrIndV.Len(),
-			plusesCount = d-minusesCount;
-	}
-	else{
-		GetSimAttrV(node1, node2, attrIndV);
-		plusesCount =attrIndV.Len(),
-			minusesCount = d-plusesCount;
-	}
-
-	int signsToAdd = 0;
-	if (!isPlusToMinus)
-		signsToAdd = ceil(d / 2.0) - plusesCount;
-	else
-		signsToAdd = ceil(d / 2.0) - minusesCount;
-	if (d == 3)
-		signsToAdd = 1;
-	//cout << "Pluses to add: " << plusesToAdd << endl;
-	signsToAdd = attrIndV.Len();
-	attrIndV.Shuffle(rnd);
-
-
-	vector<pair<int,int>> absWeights;
-	for (int i = 0; i < N; i++){
-		TIntV v1, v2;
-		G->IntAttrValueNI(node1, v1);
-		G->IntAttrValueNI(i, v2);
-		int sum = 0;
-		for (int j = 0; j < attrNames.size(); ++j)
-			sum += v1[i] * v2[i];
-		absWeights.push_back(make_pair(i,sum));
-	}
-	sort(absWeights.begin(), absWeights.end(), pairCompare);
-	vector<int> weights_before, weights_after;
-	int maxCount = N/10;
-	for (int i = 0; i < maxCount; ++i){
-		weights_before.push_back(absWeights[i].second);
-	}
-
-	int oldBalancedCount = balancedCount;
-	for (int i = 0; i < signsToAdd; ++i){
-		
-		int attrInd = attrIndV[i];
-		int val = G->GetIntAttrIndDatN(node1, attrInd);
-		G->AddIntAttrDatN(node1, val * (-1), attrNames[attrInd]);
-		
-		////system("pause");
-	}
-
-	for (int i = 0; i < maxCount; ++i){
-		weights_after.push_back(absWeights[i].second);
-	}
-
-	int diff = 0;
-	for (int i = 0; i < maxCount; ++i){
-		diff += weights_after[i]-weights_before[i];
-	}
-
-
-	//CalcCaseCounts();
-	//cout << "old: " << oldBalancedCount << " new: " << balancedCount << endl;
-	if (diff < 0) {
-		for (int i = 0; i < signsToAdd; ++i){
-
-			int attrInd = attrIndV[i];
-			int val = G->GetIntAttrIndDatN(node1, attrInd);
-			G->AddIntAttrDatN(node1, val * (-1), attrNames[attrInd]);
-		}
-	}
-
-	/* check */
-	wasModified = true;
-}
-
 
 void HeiderGraph::ChangeSignAttrRandomCount( int& node1, int& node2, bool isPlusToMinus )
 {
@@ -472,7 +469,7 @@ void HeiderGraph::ChangeSignAttrMax( int& node1, int& node2, bool isPlusToMinus 
 	wasModified = true;
 }
 
-void HeiderGraph::GetDiffAttrV( int& node1, int& node2, TIntV& diffAttrIndV )
+TIntV HeiderGraph::GetDiffAttrV( int& node1, int& node2, TIntV& diffAttrIndV )
 {
 	diffAttrIndV.Clr();
 	TIntV attr1, attr2;
@@ -484,9 +481,18 @@ void HeiderGraph::GetDiffAttrV( int& node1, int& node2, TIntV& diffAttrIndV )
 			diffAttrIndV.Add(i);
 	}
 
+	TIntV bit_xor;
+	int dif_bits = 0;
+	for (int i = 0; i < attr.Len(); ++i){
+		bit_xor.Add(attr[i][node1] ^ attr[i][node2]);
+		dif_bits += builtinPopcount(bit_xor[i]);
+	}
+
+	return bit_xor;
+
 }
 
-void HeiderGraph::GetSimAttrV( int& node1, int& node2, TIntV& simAttrIndV )
+TIntV HeiderGraph::GetSimAttrV( int& node1, int& node2, TIntV& simAttrIndV )
 {
 	simAttrIndV.Clr();
 	TIntV attr1, attr2;
@@ -497,6 +503,26 @@ void HeiderGraph::GetSimAttrV( int& node1, int& node2, TIntV& simAttrIndV )
 		if (attr1[i] == attr2[i])
 			simAttrIndV.Add(i);
 	}
+
+	TIntV bit_and;
+	int same_bits = 0;
+	for (int i = 0; i < attr.Len(); ++i){
+		bit_and.Add(attr[i][node1] & attr[i][node2]);
+		same_bits += builtinPopcount(bit_and[i]);
+		cout << bit_and[i] << " ";
+	}
+
+
+//	cout << endl << "test" << endl;
+//	cout << "same bits: " << same_bits <<endl;
+	PrintNodeAttrs(node1);
+	PrintNodeAttrs(node2);
+//	int r = rnd.GetUniDevInt(0, same_bits-1);
+//	cout << "Picked to change bit nr: " << r << endl;
+//	cout << "node1: " << nthset(node1, r) << endl;
+//	cout << "node2: " << nthset(node2, r) << endl;
+
+	return bit_and;
 }
 
 
@@ -540,6 +566,7 @@ void HeiderGraph::PrintWeightMatrix()
 	}
 }
 
+//unused
 void HeiderGraph::Mutate( double pm )
 {
 	double rval  = rnd.GetUniDev();
@@ -554,9 +581,9 @@ void HeiderGraph::Mutate( double pm )
 
 void HeiderGraph::SaveFinalState( double p, int idRun )
 {
-	string outFileName = "network_" + to_string((long long)N) + "_" + to_string((long long)d) + "_" 
-		+ to_string((long double)p) + "_" 
-		+ to_string((long long)idRun) + "_" + changeSignType.CStr() + ".txt";
+	std::string outFileName = "network_" + ToString((long long)N) + "_" + ToString((long long)d) + "_" 
+		+ ToString((long double)p) + "_" 
+		+ ToString((long long)idRun) + "_" + changeSignType.CStr() + ".txt";
 	std::ofstream out(outFileName.c_str());
 	if (!out){
 		cout << "Error of file creation" << endl;
@@ -581,7 +608,7 @@ void HeiderGraph::AntalDynamics( int maxIterCount, double p, int& iter, int& lar
 	clock_t begin,end;
 	begin = clock();
 	CalcCaseCounts();
-	if (ITER_KEEP)
+	if (confParams.ITER_KEEP)
 		cout << "Iteration: 0 Balanced part: " << GetBalancedPart() << " Imbalanced part: " << GetImbalancedPart() << endl;
 	int i = 0;
 	int successful_attempts = 0, balanced_iter = 0;
@@ -589,7 +616,6 @@ void HeiderGraph::AntalDynamics( int maxIterCount, double p, int& iter, int& lar
 		++i;
 		int node1, node2, node3;
 		GetRandomTriad(node1, node2, node3);
-		//Mutate(0.1);
 		//if (LOUD)
 		//	cout << "Triad: (" << node1 << ", " << node2 << ", " << node3 << ")" << endl;
 		/*PrintNodeAttrs(node1);
@@ -597,13 +623,13 @@ void HeiderGraph::AntalDynamics( int maxIterCount, double p, int& iter, int& lar
 		PrintNodeAttrs(node3);*/
 		int triadType = GetTriadType(node1, node2, node3);
 		//cout << "Triad type: " << triadType << endl;
-		int caseNum;
-		if (IsBalancedNode(node1, node2, node3, caseNum)){
+		//int caseNum;
+		if (triadType%2==0){//IsBalancedNode(node1, node2, node3, caseNum)){
 			++balanced_iter;
 			
 			if (i%printEvery == 0 && i!=0){
 				CalcCaseCounts();
-				if (ITER_KEEP)
+				if (confParams.ITER_KEEP)
 					cout << "Iteration: " << i << " (balanced)" << " Balanced part: " << GetBalancedPart() << " Imbalanced part: " << GetImbalancedPart() << endl;
 				//system("pause");
 			}
@@ -614,8 +640,8 @@ void HeiderGraph::AntalDynamics( int maxIterCount, double p, int& iter, int& lar
 		if (triadType == 1){
 			double prob = rnd.GetUniDev();
 			if (prob < p){
-				if (triadType == 0)
-					continue;
+				//if (triadType == 0)
+				//	continue;
 				if (LOUD)
 					cout << "Triad type before changing - to +: " << triadType << " " << GetStrTriadType(triadType).CStr() << endl;
 				ChangeSign(node1, node2, node3, plusToMinus);
@@ -649,7 +675,7 @@ void HeiderGraph::AntalDynamics( int maxIterCount, double p, int& iter, int& lar
 		
 		if (i%printEvery == 0 && i!=0){
 			CalcCaseCounts();
-			if (ITER_KEEP)
+			if (confParams.ITER_KEEP)
 				cout << "Iteration: " << i << " Balanced part: " << GetBalancedPart() << " Imbalanced part: " << GetImbalancedPart() << endl;
 		}
 		//system("pause");
@@ -657,9 +683,9 @@ void HeiderGraph::AntalDynamics( int maxIterCount, double p, int& iter, int& lar
 	iter = i;
 	bPart = GetBalancedPart();
 	// cout << "Iteration: " << i << " Balanced part: " << GetBalancedPart() << " Imbalanced part: " << GetImbalancedPart() << endl;
-	if (INST_KEEP)
+	if (confParams.INST_KEEP)
 		cout << "Iterations (balanced): " << balanced_iter << ", part of successful attempts for imbalanced: " << (double) successful_attempts / (i-balanced_iter) << endl;
-	if (FINAL_STATE_KEEP)
+	if (confParams.FINAL_STATE_KEEP)
 		SaveFinalState(p, idRun);
 	end = clock();
 	PrintTriadsInfo();
@@ -671,18 +697,8 @@ void HeiderGraph::AntalDynamics( int maxIterCount, double p, int& iter, int& lar
 	cout << "Time of execution: " << (end-begin)/(double)CLOCKS_PER_SEC << endl;
 }
 
-/* p - percent of extroverts */
-void HeiderGraph::SetIntrovertsExtroverts(double p){
-	
-	for (TNEANet::TNodeI NI = G->BegNI(); NI < G->EndNI(); NI++) { 
-		int id = NI.GetId();
-		if (rnd.GetUniDev() >= p)
-			personType[id] = -1;
-		else
-			personType[id] = 1;
-	}
-}
 
+//unised
 int HeiderGraph::GetNbrRelations( int node )
 {
 	TNEANet::TNodeI nodeI = G->GetNI(node);
@@ -695,120 +711,66 @@ int HeiderGraph::GetNbrRelations( int node )
 	return totalRelations;
 }
 
-/* there are p \cdot N introvert nodes and (1-p) \cdot N extravert nodes 
-   extraverts do not want to make relations with neighbors worse:
-   that is, when extravert is in ++- triangle (imbalanced), it chooses
-   only ++- => +++ transformation (not ++- => --+);
-   and introvert don't mind if its individual relation will worsen
-   after attempt of balancing triangle
-   that is: 
-   we choose a random node and a random triangle of this node
-   if random triangle is balanced, do nothing
-   if it is imbalanced:
-   if it is of --- type, change relation with one of the neighbors to +
-   if it is of ++- type and and node is extravert:
-   if it has ++ relation to both nodes, do nothing
-   if it has one minus relation, change it to plus
-   if node is introvert:
-   revert one of the relations
-*/
-void HeiderGraph::IntrovertExtrovertDynamics( int maxIterCount, double p, int& iter, int& largestGroupSize, double bPart, int printEvery, int idRun /*= 0*/ )
-{
-	SetIntrovertsExtroverts(p);
-	clock_t begin,end;
-	begin = clock();
-	CalcCaseCounts();
-	if (ITER_KEEP)
-		cout << "Iteration: 0 Balanced part: " << GetBalancedPart() << " Imbalanced part: " << GetImbalancedPart() << endl;
-	int i = 0;
-	int successful_attempts = 0, balanced_iter = 0;
-	while (i <= maxIterCount && imbalancedCount > 0){
-		++i;
-
-		/* get random node */
-		int node = rnd.GetUniDevInt(0, N-1);
-		TIntV nodeAttr;
-
-		/* get random triangle comprising chosen node */
-		int nbr1 = node, nbr2 = node;
-		GetRandomTriadForNode(node, nbr1, nbr2);
-		
-		int sign1 = GetWeight(node, nbr1),
-			sign2 = GetWeight(node, nbr2),
-			sign3 = GetWeight(nbr1, nbr2);
-
-		int caseNum = -1;
-		int triadType = GetTriadType(node, nbr1, nbr2);
-		// string type = personType[node] == -1? "attrRandom": "attrChoice";
-		
-
-		if (IsBalanced(sign1, sign2, sign3, caseNum)){
-			continue;
-		}
-		/* --- case */
-		else if (triadType == 3){
-			int nbrToChange = rnd.GetUniDevInt(1);
-			if (nbrToChange == 0)
-				ChangeSign(node, nbr1, false, node); //, type);
-			else
-				ChangeSign(node, nbr2, false, node); //, type);
-		}
-		/* ++- case */
-		else {
-			int nbrToChange = rnd.GetUniDevInt(1);
-			if (nbrToChange == 0)
-				nbrToChange = nbr1;
-			else 
-				nbrToChange = nbr2;
-			if (sign1 == -1)
-				ChangeSign(node, nbrToChange, false, node);//, type);
-			else if (personType[node] == -1)
-				ChangeSign(node, nbrToChange, true, node);//, type);
-		}
-		
-		
-		if (i%printEvery == 0 && i!=0){
-			CalcCaseCounts();
-			//if (i%10 == 0)
-			//	system("pause");
-			if (ITER_KEEP)
-				cout << "Iteration: " << i << " Balanced part: " << GetBalancedPart() << " Imbalanced part: " << GetImbalancedPart() << endl;
-		}
-		//system("pause");
-	}
-	iter = i;
-	bPart = GetBalancedPart();
-	// cout << "Iteration: " << i << " Balanced part: " << GetBalancedPart() << " Imbalanced part: " << GetImbalancedPart() << endl;
-	if (INST_KEEP)
-		cout << "Iterations (balanced): " << balanced_iter << ", part of successful attempts for imbalanced: " << (double) successful_attempts / (i-balanced_iter) << endl;
-	if (FINAL_STATE_KEEP)
-		SaveFinalState(p, idRun);
-	end = clock();
-	PrintTriadsInfo();
-	//PrintWeightMatrix();
-	largestGroupSize = GetLargestGroupSize();
-	cout << "Largest group size: " << largestGroupSize << endl;
-	if (largestGroupSize == N)
-		cout << "Paradise achieved!" << endl;
-	cout << "Time of execution: " << (end-begin)/(double)CLOCKS_PER_SEC << " p: " << p << endl;
-}
-
+/**
+ * Initialization of attributes
+ */
 void HeiderGraph::RandomInit()
 {
-	for (int i = 0; i < N; ++i){
-		for (int j = 0; j < d; ++j){
-			int val = rand()%2;
-			if (val == 0)
-				val = -1;
-			/*int val = 0;
-			double r = rnd.GetUniDev();
-			if (r >= 0.7)
-				val = -1;
-			else
-				val = 1;*/
-			G->AddIntAttrDatN(i, val, attrNames[j]);
+	//number of values needed to store:
+	int max_bits = 30;
+	int dv = ceil(double(d) / max_bits);
+	TIntV bits;
+	int b;
+	for (b = d; b > 0; b-=max_bits){
+		bits.Add(max_bits);
+	}
+	bits[dv-1] = b+max_bits;
+
+	attr.Clr();
+
+	for (int j = 0; j < dv; ++j){
+		TIntV temp;
+		for (int i = 0; i < N; ++i){
+			int r = rnd.GetUniDevInt(0, pow(2, int(bits[j]))-1);
+			temp.Add(r);
+			//cout << r << " ";
+		}
+		attr.Add(temp);
+
+	}
+
+	for (int j = 0; j < dv; ++j){
+		//cout << attr
+		for (int i = 0; i < N; ++i){
+			cout << attr[j][i] << " ";
 		}
 	}
+
+	//TIntVecV tempt;
+	for (int i = 0; i < N; ++i){
+		//TIntV temp;
+		for (int j = 0; j < d; ++j){
+			int val = 0;
+			double r = rnd.GetUniDev();
+			if (r >= 0.5)
+				val = -1;
+			else
+				val = 1;
+			val = ((attr[0][i] >> j) & 1)*2-1;
+
+			//cout << val;
+
+			G->AddIntAttrDatN(i, val, attrNames[j]);
+
+		}
+		//cout << endl;
+	}
+
+
+	PrintNodeAttrs(0);
+	PrintNodeAttrs(1);
+	PrintNodeAttrs(2);
+
 	wasModified = true;
 }
 
@@ -821,6 +783,13 @@ void HeiderGraph::PrintNodeAttrs( int i )
 	for (int j = 0; j < AttrLen; j++) {
 		cout << NIdAttrValue[j].CStr() << "\t";
 	} 
+	cout << endl;
+
+	for (int j = 0; j < attr.Len(); ++j){
+	for (int k = d-1; k >= 0; --k) {
+	   cout << ((attr[j][i] >> k) & 1);
+	}
+	}
 	cout << endl;
 }
 
@@ -840,6 +809,13 @@ int HeiderGraph::GetWeight( int node1, int node2 )
 		weight = 1;
 	if (weight < 0)
 		weight = -1;
+
+	int same_bits = 0;
+	for (int i = 0; i < attr.Len(); ++i)
+		same_bits += builtinPopcount(attr[i][node1] & attr[i][node2]);
+
+	int weight2 = same_bits > d/2. ? 1 : 0;
+
 	return weight;
 }
 
@@ -854,9 +830,6 @@ bool HeiderGraph::IsBalanced(int ij_rel, int jk_rel, int ik_rel, int& case_num){
 		case_num = 4;
 
 	bool balanced = false;
-
-	//if (LOUD)
-	//	cout << ij_rel << " " << jk_rel << " " << ik_rel << endl;
 
 	if (ij_rel > 0  && jk_rel > 0  && ik_rel > 0){
 		balanced = true;
@@ -885,7 +858,7 @@ bool HeiderGraph::IsBalancedNode( int node1, int node2, int node3, int& caseNum 
 {
 	if (!G->IsEdge(node1, node2) || !G->IsEdge(node2, node3) || !G->IsEdge(node1, node3)) {
 		cout << "Calculating balance for a non-triad" << endl;
-		system("pause");
+		//system("pause");
 		exit(NON_TRIAD);
 	}
 		

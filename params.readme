@@ -1,0 +1,33 @@
+# This is file containing documentation for parameters file in RBN 1.0
+# Author: Piotr Jan Gorski
+# Date: 2014-12-20
+# Possible variables are listed below. Each variable has its special name. In order to add a variable you need to write its name and afterwards value(s).
+# Names and values should be space-seperated.
+# Parameters are divided into 3 groups: model parameters (physics), simulation parameters (computer science) and saving-data parameters.
+# The lines below contain (here: coma-seperated) parameters' names, their default values (if not declared) and little information about them
+
+N,0,number of networks, or range of networks to be investigated, single integer - one network, two integers - networks from N_beg to N_end with step 1, three integers are N_beg, N_end, N_step (integer or vector of integers) REQUIRED
+A,0,number of attributes, or range of attributes to be investigated, single integer - one attributes, two integers - attributes from attr_beg to attr_end with step 1, three integers are attr_beg, attr_end, attr_step (integer or vector of integers) REQUIRED
+p,0,number of p values, or range of p values to be investigated, single integer - one p value, two integers - ps from p_beg to p_end with step 1, three integers are p_beg, p_end, p_step (integer or vector of integers) REQUIRED
+graphType,Complete,type of graph	(OPTIONAL)
+dynamicsType,attrRandom,type of model dynamics (OPTIONAL)
+iterations,100000,number of iterations in each realization (integer) OPTIONAL
+repetitions,1,number of realizations (integer) OPTIONAL
+inform_after,10,after how many informations should the user be informed about the progress (integer) OPTIONAL
+save_from,100,start saving hist information after save_hist_from iterations (integer) OPTIONAL
+print_every,100,after how many iters balanced should b checked	(OPTIONAL)
+save_every,1000,af
+TO_FILE,0, OPTIONAL
+ITER_KEEP,0, OPTIONAL
+INST_KEEP,0, OPTIONAL
+FINAL_STATE_KEEP,0, (boolean, right 1 or 0) OPTIONAL
+add_on,,this will be added to the end of the file (string) OPTIONAL
+
+#Example:
+N 3 4
+A 3 5 2
+p 0.7 0.8 0.05
+iterations 100000
+repetitions 1
+print_every 100
+add_on test

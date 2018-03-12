@@ -1,5 +1,6 @@
-#include "StdAfx.h"
+#include "stdafx.h"
 #include "Stat.h"
+#include "params.hpp"
 
 
 using namespace std;
@@ -8,7 +9,8 @@ double Stat::Mean( vector<int>& vec )
 {
 	if (vec.size() == 0){
 		cout << "Error! Calculating mean of a vector with zero count" << endl;
-		exit(ZERO_VECTOR_MEAN);
+		return -1;
+		//exit(ZERO_VECTOR_MEAN);
 	}
 
 	double mean = 0;
