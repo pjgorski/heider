@@ -224,9 +224,9 @@ void params::read_from_file(std::string filename){
 			p_min = p_max = p = v[0];
 			p_step = 0.1;
 		}
-		cout << v.size() << " ";
-		for (int i = 0; i < v.size(); ++i)
-			cout << v[i] << " " ;
+		//cout << v.size() << " ";
+//		for (int i = 0; i < v.size(); ++i)
+//			cout << v[i] << " " ;
 	}
 /*
 	it = params.find("Q");

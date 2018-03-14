@@ -38,6 +38,7 @@ class HeiderGraph
 	int N;
 	int E;
 	int d;
+	TIntV max_vals;
 	params confParams;
 	TStr graphType;
 	TStr changeSignType;
@@ -62,8 +63,8 @@ class HeiderGraph
 	void ChangeSignAttrRandom(int& node1, int& node2, bool isPlusToMinus);
 	void ChangeSignAttrRandomCount(int& node1, int& node2, bool isPlusToMinus);
 	void ChangeSignAttrMax(int& node1, int& node2, bool isPlusToMinus);
-	TIntV GetDiffAttrV(int& node1, int& node2, TIntV& diffAttrIndV);
-	TIntV GetSimAttrV(int& node1, int& node2, TIntV& simAttrIndV);
+	int GetDiffAttrV(int& node1, int& node2, TIntV& diffAttrIndV);
+	int GetSimAttrV(int& node1, int& node2, TIntV& simAttrIndV);
 	int GetNbrRelations(int node);
 	void GetStat(int& node, std::vector<int>& oldNbrWeights, std::vector<int>&oldNbrCaseCounts, int& oldNbrBalancedCount, int& oldNbrImbalancedCount,
 		int& oldNbrPositiveWCount, int& oldNbrNegativeWCount);

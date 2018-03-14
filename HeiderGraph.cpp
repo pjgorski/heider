@@ -29,11 +29,11 @@ HeiderGraph::HeiderGraph( int N, int d, TRnd r, TStr graphType, TStr changeSignT
 	this->d = d;
 	std::string s = graphType.CStr();
 	//s.erase(s.end()-1, s.end());
-	this->graphType = s.c_str();
+	this->graphType = graphType;//s.c_str();
 	//cout << graphType << endl;
 	std::string dyn = changeSignType.CStr();
 	//dyn.erase(dyn.end()-1, dyn.end());
-	this->changeSignType = dyn.c_str();
+	this->changeSignType = changeSignType;//dyn.c_str();
 
 	rnd = r;
 	
@@ -46,13 +46,13 @@ HeiderGraph::HeiderGraph( int N, int d, TRnd r, TStr graphType, TStr changeSignT
 	}
 
 	this->E = G->GetEdges();
-	for (int i = 0; i < d; ++i){
-	//int i = 0;
-
-		std::string s2 = "attr" + ToString((long long)i);
-		attrNames.push_back(TStr(s2.c_str()));
-		G->AddIntAttrN(attrNames[i],0);
-	}
+//	for (int i = 0; i < d; ++i){
+//	//int i = 0;
+//
+//		std::string s2 = "attr" + ToString((long long)i);
+//		attrNames.push_back(TStr(s2.c_str()));
+//		G->AddIntAttrN(attrNames[i],0);
+//	}
 	for (int i = 0; i < BALANCE_CASE_COUNT; ++i)
 		caseCounts.push_back(0);
 	triads = TSnap::GetTriads(G);
@@ -64,7 +64,7 @@ HeiderGraph::HeiderGraph( int N, int d, TRnd r, TStr graphType, TStr changeSignT
 void HeiderGraph::GetRandomTriad(int &node1, int& node2, int& node3){
 	if (triads == 0){
 		cout << "Graph does not contain triads" << endl;
-		system("pause");
+		//system("pause");
 		exit(ZERO_TRIADS);
 	}
 
@@ -119,7 +119,7 @@ void HeiderGraph::GetRandomTriadForNode( const int &node, int& nbr1, int& nbr2 )
 	int nbrCount = nodeI.GetOutDeg();
 	if (nbrCount < 2){
 		cout << "Attempt to get triad for a node with degree " << nbrCount << endl;
-		system("pause");
+		//system("pause");
 		exit(NON_TRIAD);
 	}
 	nbr1 = node;
@@ -261,7 +261,7 @@ void HeiderGraph::ChangeSign( int& node1, int& node2, bool isPlusToMinus, int fi
 	else{
 		cout << "Unsupported type of changing sign, dynamics: " << type 
 			<< endl;
-		system("pause");
+		//system("pause");
 		exit(UNSUPPORTED_CHANGE_SIGN_TYPE);
 	}
 }
@@ -308,7 +308,7 @@ void HeiderGraph::ChangeSign (int& node1, int& node2, bool isPlusToMinus, int fi
 	if (first != node1 && first != node2){
 		cout << "Attempt to change attribute in incorrect node, node 1 =  " << node1 
 			<< " node2 = " << node2 << " base node: " << first << endl;
-		system("pause");
+		//system("pause");
 		exit(WRONG_BASE_NODE_ID);
 	}
 	int second = node2;
@@ -330,7 +330,7 @@ void HeiderGraph::ChangeSign (int& node1, int& node2, bool isPlusToMinus, int fi
 	else{
 		cout << "Unsupported type of changing sign, dynamics: " << type 
 			 << endl;
-		system("pause");
+		//system("pause");
 		exit(UNSUPPORTED_CHANGE_SIGN_TYPE);
 	}
 }
@@ -338,12 +338,13 @@ void HeiderGraph::ChangeSign (int& node1, int& node2, bool isPlusToMinus, int fi
 void HeiderGraph::ChangeSignAttrRandom( int& node1, int& node2, bool isPlusToMinus )
 {
 	TIntV attrIndV, and_xor;
+	int bits;
 	if (isPlusToMinus)
-		and_xor = GetSimAttrV(node1, node2, attrIndV);
+		bits = GetSimAttrV(node1, node2, and_xor);
 	else
-		and_xor = GetDiffAttrV(node1, node2, attrIndV);
+		bits = GetDiffAttrV(node1, node2, and_xor);
 
-	int r = rnd.GetUniDevInt(0, attrIndV.Len()-1);
+	int r = rnd.GetUniDevInt(0, bits-1);//attrIndV.Len()-1);
 
 	//attrIndV.Shuffle(rnd);
 	//int attrInd = attrIndV[0];
@@ -353,8 +354,7 @@ void HeiderGraph::ChangeSignAttrRandom( int& node1, int& node2, bool isPlusToMin
 	if (nodeToChange == 1){
 		//int val = G->GetIntAttrIndDatN(node1, attrInd);
 		//G->AddIntAttrDatN(node1, val * (-1), attrNames[attrInd]);
-
-node = node1;
+		node = node1;
 	}
 	else{
 		//int val = G->GetIntAttrIndDatN(node2, attrInd);
@@ -362,7 +362,7 @@ node = node1;
 		node = node2;
 	}
 
-	cout << "node1 and node2: " << node1 << " " << node2 << endl;
+	//cout << "node1 and node2: " << node1 << " " << node2 << endl;
 
 	int pos = 0;
 	for (int i = 0, i2 = 0; i < and_xor.Len(); ++i){
@@ -373,13 +373,13 @@ node = node1;
 				++pos;
 
 				if(pos > r){
-					cout << " " << attr[i][node] << endl;
+					//cout << " " << attr[i][node] << endl;
 					int val2 = attr[i][node];
 					val2 ^= (1UL << j); //toggling bit
 					attr[i][node] = val2;
-					int val3 = G->GetIntAttrIndDatN(node, i2);
-					G->AddIntAttrDatN(node, val3 * (-1), attrNames[i2]);
-					cout << attr[i][node] << endl;
+//					int val3 = G->GetIntAttrIndDatN(node, i2);
+//					G->AddIntAttrDatN(node, val3 * (-1), attrNames[i2]);
+					//cout << attr[i][node] << endl;
 				}
 			}
 			val = val >> 1;
@@ -469,60 +469,61 @@ void HeiderGraph::ChangeSignAttrMax( int& node1, int& node2, bool isPlusToMinus 
 	wasModified = true;
 }
 
-TIntV HeiderGraph::GetDiffAttrV( int& node1, int& node2, TIntV& diffAttrIndV )
+int HeiderGraph::GetDiffAttrV( int& node1, int& node2, TIntV& bit_xor )
 {
-	diffAttrIndV.Clr();
-	TIntV attr1, attr2;
-	G->IntAttrValueNI(node1, attr1);
-	G->IntAttrValueNI(node2, attr2);
+//	diffAttrIndV.Clr();
+//	TIntV attr1, attr2;
+//	G->IntAttrValueNI(node1, attr1);
+//	G->IntAttrValueNI(node2, attr2);
+//
+//	for (int i = 0; i < attr1.Len(); ++i){
+//		if (attr1[i] != attr2[i])
+//			diffAttrIndV.Add(i);
+//	}
 
-	for (int i = 0; i < attr1.Len(); ++i){
-		if (attr1[i] != attr2[i])
-			diffAttrIndV.Add(i);
-	}
-
-	TIntV bit_xor;
+	//TIntV bit_xor;
 	int dif_bits = 0;
 	for (int i = 0; i < attr.Len(); ++i){
-		bit_xor.Add(attr[i][node1] ^ attr[i][node2]);
+		bit_xor.Add((attr[i][node1] ^ attr[i][node2])&max_vals[i]);
 		dif_bits += builtinPopcount(bit_xor[i]);
 	}
 
-	return bit_xor;
+	return dif_bits;
 
 }
 
-TIntV HeiderGraph::GetSimAttrV( int& node1, int& node2, TIntV& simAttrIndV )
+int HeiderGraph::GetSimAttrV( int& node1, int& node2, TIntV& bit_and )
 {
-	simAttrIndV.Clr();
-	TIntV attr1, attr2;
-	G->IntAttrValueNI(node1, attr1);
-	G->IntAttrValueNI(node2, attr2);
-
-	for (int i = 0; i < attr1.Len(); ++i){
-		if (attr1[i] == attr2[i])
-			simAttrIndV.Add(i);
-	}
-
-	TIntV bit_and;
+//	simAttrIndV.Clr();
+//	TIntV attr1, attr2;
+//	G->IntAttrValueNI(node1, attr1);
+//	G->IntAttrValueNI(node2, attr2);
+//
+//	for (int i = 0; i < attr1.Len(); ++i){
+//		if (attr1[i] == attr2[i])
+//			simAttrIndV.Add(i);
+//	}
+//
+//	TIntV bit_and;
 	int same_bits = 0;
 	for (int i = 0; i < attr.Len(); ++i){
-		bit_and.Add(attr[i][node1] & attr[i][node2]);
+		bit_and.Add((~(attr[i][node1] ^ attr[i][node2])) & max_vals[i]);
+		//same_bits += builtinPopcount(~((attr[i][node1] ^ attr[i][node2]));
 		same_bits += builtinPopcount(bit_and[i]);
-		cout << bit_and[i] << " ";
+		//cout << bit_and[i] << " ";
 	}
 
 
 //	cout << endl << "test" << endl;
 //	cout << "same bits: " << same_bits <<endl;
-	PrintNodeAttrs(node1);
-	PrintNodeAttrs(node2);
+	//PrintNodeAttrs(node1);
+	//PrintNodeAttrs(node2);
 //	int r = rnd.GetUniDevInt(0, same_bits-1);
 //	cout << "Picked to change bit nr: " << r << endl;
 //	cout << "node1: " << nthset(node1, r) << endl;
 //	cout << "node2: " << nthset(node2, r) << endl;
 
-	return bit_and;
+	return same_bits;
 }
 
 
@@ -717,14 +718,17 @@ int HeiderGraph::GetNbrRelations( int node )
 void HeiderGraph::RandomInit()
 {
 	//number of values needed to store:
-	int max_bits = 30;
+	int max_bits = 30, max_val = pow(2,max_bits)-1;
 	int dv = ceil(double(d) / max_bits);
 	TIntV bits;
 	int b;
 	for (b = d; b > 0; b-=max_bits){
 		bits.Add(max_bits);
+		max_vals.Add(max_val);
 	}
 	bits[dv-1] = b+max_bits;
+	max_vals[dv-1] = pow(2,int(bits[dv-1]))-1;
+
 
 	attr.Clr();
 
@@ -739,51 +743,51 @@ void HeiderGraph::RandomInit()
 
 	}
 
-	for (int j = 0; j < dv; ++j){
-		//cout << attr
-		for (int i = 0; i < N; ++i){
-			cout << attr[j][i] << " ";
-		}
-	}
+//	for (int j = 0; j < dv; ++j){
+//		//cout << attr
+//		for (int i = 0; i < N; ++i){
+//			cout << attr[j][i] << " ";
+//		}
+//	}
 
-	//TIntVecV tempt;
-	for (int i = 0; i < N; ++i){
-		//TIntV temp;
-		for (int j = 0; j < d; ++j){
-			int val = 0;
-			double r = rnd.GetUniDev();
-			if (r >= 0.5)
-				val = -1;
-			else
-				val = 1;
-			val = ((attr[0][i] >> j) & 1)*2-1;
+//	//TIntVecV tempt;
+//	for (int i = 0; i < N; ++i){
+//		//TIntV temp;
+//		for (int j = 0; j < d; ++j){
+//			int val = 0;
+//			double r = rnd.GetUniDev();
+//			if (r >= 0.5)
+//				val = -1;
+//			else
+//				val = 1;
+//			val = ((attr[0][i] >> j) & 1)*2-1;
+//
+//			//cout << val;
+//
+//			G->AddIntAttrDatN(i, val, attrNames[j]);
+//
+//		}
+//		//cout << endl;
+//	}
+//
 
-			//cout << val;
-
-			G->AddIntAttrDatN(i, val, attrNames[j]);
-
-		}
-		//cout << endl;
-	}
-
-
-	PrintNodeAttrs(0);
-	PrintNodeAttrs(1);
-	PrintNodeAttrs(2);
+	//PrintNodeAttrs(0);
+//	PrintNodeAttrs(1);
+//	PrintNodeAttrs(2);
 
 	wasModified = true;
 }
 
 void HeiderGraph::PrintNodeAttrs( int i )
 {
-	TStrV NIdAttrValue;
-	G->AttrValueNI(i, NIdAttrValue);
-	TInt AttrLen = NIdAttrValue.Len();
-	cout << "Node " << i << " attributes: " << "\t";
-	for (int j = 0; j < AttrLen; j++) {
-		cout << NIdAttrValue[j].CStr() << "\t";
-	} 
-	cout << endl;
+//	TStrV NIdAttrValue;
+//	G->AttrValueNI(i, NIdAttrValue);
+//	TInt AttrLen = NIdAttrValue.Len();
+//	cout << "Node " << i << " attributes: " << "\t";
+//	for (int j = 0; j < AttrLen; j++) {
+//		cout << NIdAttrValue[j].CStr() << "\t";
+//	}
+//	cout << endl;
 
 	for (int j = 0; j < attr.Len(); ++j){
 	for (int k = d-1; k >= 0; --k) {
@@ -796,25 +800,30 @@ void HeiderGraph::PrintNodeAttrs( int i )
 /* returns +=1 */
 int HeiderGraph::GetWeight( int node1, int node2 )
 {
-	TIntV attr1, attr2;
-	G->IntAttrValueNI(node1, attr1);
-	G->IntAttrValueNI(node2, attr2);
-	if (attr1.Len() != attr2.Len())
-		cout << "attr1.Len() != attr2.Len()" << endl;
-	int weight = 0;
-	for (int i = 0; i < attr1.Len(); ++i){
-		weight += attr1[i] * attr2[i];
-	}
-	if (weight > 0)
-		weight = 1;
-	if (weight < 0)
-		weight = -1;
+//	TIntV attr1, attr2;
+//	G->IntAttrValueNI(node1, attr1);
+//	G->IntAttrValueNI(node2, attr2);
+//	if (attr1.Len() != attr2.Len())
+//		cout << "attr1.Len() != attr2.Len()" << endl;
+//	int weight = 0;
+//	for (int i = 0; i < attr1.Len(); ++i){
+//		weight += attr1[i] * attr2[i];
+//	}
+//	if (weight > 0)
+//		weight = 1;
+//	if (weight < 0)
+//		weight = -1;
 
 	int same_bits = 0;
 	for (int i = 0; i < attr.Len(); ++i)
-		same_bits += builtinPopcount(attr[i][node1] & attr[i][node2]);
+		same_bits += builtinPopcount((~(attr[i][node1] ^ attr[i][node2])) & max_vals[i]);
 
-	int weight2 = same_bits > d/2. ? 1 : 0;
+	int weight = same_bits > d/2. ? 1 : -1;
+
+
+	//PrintNodeAttrs(node1);
+	//PrintNodeAttrs(node2);
+	//cout << "bits: " << same_bits << " weight: " << weight << endl;
 
 	return weight;
 }
