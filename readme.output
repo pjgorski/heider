@@ -1,5 +1,5 @@
 Output data are given in following order:
-N,A,p,max_iter,reps,HB,Paradise,neg_links,group,mean_iters
+N,A,p,max_iter,reps,HB,Paradise,neg_links,group,std_group,mean_iters,std_iters
 
 And more thoroughly:
-number of nodes,number of attributes,value of p,maximal number of iterations,number of repetitions,number of HB achieved,number of paradise achieved,mean quotient of negative_links,mean szie of larger group,mean number of estimated needed iterations
+number of nodes,number of attributes,value of p,maximal number of iterations,number of repetitions,number of HB achieved,number of paradise achieved,mean quotient of negative_links,mean size of larger group,std dev of size off larger group,mean number of estimated needed iterations,std dev of needed iterations
