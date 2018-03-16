@@ -235,7 +235,7 @@ void params::read_from_file(std::string filename){
 
 	it = params.find("iterations");
 	if(it != end)
-		iterations = (int) (it->second).at(0);
+		iterations = (long long) pow(10,(it->second).at(0));
 
 	it = params.find("repetitions");
 	if(it != end)

@@ -39,6 +39,8 @@ class HeiderGraph
 	int E;
 	int d;
 	TIntV max_vals;
+
+
 	params confParams;
 	TStr graphType;
 	TStr changeSignType;
@@ -84,13 +86,14 @@ class HeiderGraph
 	void SaveFinalState(double p, int idRun);
 
 	TIntVecV attr; //first index is attribute than node.
+	TIntVV weights;
 
 
 public:
 	HeiderGraph(void);
 	HeiderGraph(int N, int d,TRnd r,  TStr graphType, TStr changeSignType);
 	/* types = [attrChoice, attrRandom, attrMax, attrRandomCount] */
-	void AntalDynamics(int maxIterCount, double p, int& iter, int&largestGroupSize, double bPart, int printEvery, int idRun = 0 );
+	void AntalDynamics(long long maxIterCount, double p, long long& iter, int&largestGroupSize, double bPart, int printEvery, int idRun = 0 );
 
 	void setParams(params& p){confParams = p;}
 	void RandomInit();

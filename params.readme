@@ -11,7 +11,7 @@ A,0,number of attributes, or range of attributes to be investigated, single inte
 p,0,number of p values, or range of p values to be investigated, single integer - one p value, two integers - ps from p_beg to p_end with step 1, three integers are p_beg, p_end, p_step (integer or vector of integers) REQUIRED
 graphType,Complete,type of graph	(OPTIONAL)
 dynamicsType,attrRandom,type of model dynamics (OPTIONAL)
-iterations,100000,number of iterations in each realization (integer) OPTIONAL
+iterations,5,the exponent of 10 of number of iterations in each realization (integer) OPTIONAL
 repetitions,1,number of realizations (integer) OPTIONAL
 inform_after,10,after how many informations should the user be informed about the progress (integer) OPTIONAL
 save_from,100,start saving hist information after save_hist_from iterations (integer) OPTIONAL

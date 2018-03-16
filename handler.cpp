@@ -24,7 +24,7 @@ void handler::work(){
 
 	reset_vectors();
 
-	clock_t t_all = clock(), t = clock();
+	//clock_t t_all = clock(), t = clock();
 
 		std::cout << std::fixed;
 	    	std::cout << std::setprecision(3);
@@ -59,7 +59,8 @@ void handler::work(){
 					G.setParams(confParams);
 					Stat statInfo;
 
-					int iter = 0, largestGroupSize = 0;
+					long long iter = 0;
+					int largestGroupSize = 0;
 					double bPart = 0;
 					/* iter, largestGroupSize � out parameters */
 					//cout << "reps  "<< confParams.repetitions;
@@ -89,13 +90,16 @@ void handler::work(){
 					combined.push_back(N);
 					combined.push_back(attr);
 					combined.push_back(p);
-					combined.push_back(confParams.iterations);
+					combined.push_back(log10(confParams.iterations));
 					combined.push_back(confParams.repetitions);
 					combined.push_back(statInfo.hb);
 					combined.push_back(statInfo.heaven);
 					combined.push_back(statInfo.Mean(statInfo.neg_links)/((double)N*(N-1)/2));
 					combined.push_back(statInfo.GetMeanLargestGroupSize());
-					combined.push_back(iter);
+					combined.push_back(statInfo.GetSigmaLargestGroupSize());
+
+					combined.push_back(statInfo.GetMeanIterations());
+					combined.push_back(statInfo.GetSigmaIterations());
 					//combined.push_back(N);
 					confParams.combined.push_back(combined);
 

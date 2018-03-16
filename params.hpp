@@ -15,6 +15,7 @@
 #include <iostream>
 #include <map>
 #include <cstdlib>
+#include <cmath>
 
 #include "model_params.hpp"
 #include "saving_parameter.hpp"
@@ -55,7 +56,7 @@ public:
 	std::string dynamicsType; //type of model dynamics
 
 //---------------SIMULATION PARAMETERS-------------
-	int iterations;
+	long long iterations;
 	int repetitions;
 
 	//iteration management

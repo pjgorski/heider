@@ -1,7 +1,7 @@
 N 3
 A 31 33 2
 p 0.7 
-iterations 100000000
+iterations 8
 repetitions 10
 print_every 10000
 add_on test

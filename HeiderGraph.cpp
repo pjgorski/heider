@@ -380,6 +380,12 @@ void HeiderGraph::ChangeSignAttrRandom( int& node1, int& node2, bool isPlusToMin
 //					int val3 = G->GetIntAttrIndDatN(node, i2);
 //					G->AddIntAttrDatN(node, val3 * (-1), attrNames[i2]);
 					//cout << attr[i][node] << endl;
+					//TIntV node_weight(N);
+					//node_weight.PutAll(0);
+#ifdef USE_WEIGHTS
+					weights.PutX(node, 0);
+					weights.PutY(node, 0);
+#endif
 				}
 			}
 			val = val >> 1;
@@ -604,15 +610,15 @@ void HeiderGraph::SaveFinalState( double p, int idRun )
 	out.close();
 }
 
-void HeiderGraph::AntalDynamics( int maxIterCount, double p, int& iter, int& largestGroupSize, double bPart, int printEvery, int idRun )
+void HeiderGraph::AntalDynamics( long long maxIterCount, double p, long long& iter, int& largestGroupSize, double bPart, int printEvery, int idRun )
 {
 	clock_t begin,end;
 	begin = clock();
 	CalcCaseCounts();
 	if (confParams.ITER_KEEP)
 		cout << "Iteration: 0 Balanced part: " << GetBalancedPart() << " Imbalanced part: " << GetImbalancedPart() << endl;
-	int i = 0;
-	int successful_attempts = 0, balanced_iter = 0;
+	long long i = 0;
+	long long successful_attempts = 0, balanced_iter = 0;
 	while (i <= maxIterCount && imbalancedCount > 0){
 		++i;
 		int node1, node2, node3;
@@ -776,6 +782,14 @@ void HeiderGraph::RandomInit()
 //	PrintNodeAttrs(2);
 
 	wasModified = true;
+
+#ifdef USE_WEIGHTS
+	weights.Clr();
+	weights = TIntVV(N,N);
+	//TIntV node_weight(N);
+	//node_weight.PutAll(0);
+	weights.PutAll(0);
+#endif
 }
 
 void HeiderGraph::PrintNodeAttrs( int i )
@@ -800,6 +814,12 @@ void HeiderGraph::PrintNodeAttrs( int i )
 /* returns +=1 */
 int HeiderGraph::GetWeight( int node1, int node2 )
 {
+#ifdef USE_WEIGHTS
+	if (weights(node1,node2) != 0){
+		return weights(node1,node2);
+	}
+#endif
+
 //	TIntV attr1, attr2;
 //	G->IntAttrValueNI(node1, attr1);
 //	G->IntAttrValueNI(node2, attr2);
@@ -820,7 +840,9 @@ int HeiderGraph::GetWeight( int node1, int node2 )
 
 	int weight = same_bits > d/2. ? 1 : -1;
 
-
+#ifdef USE_WEIGHTS
+	weights(node1,node2) = weights(node2,node1) = weight;
+#endif
 	//PrintNodeAttrs(node1);
 	//PrintNodeAttrs(node2);
 	//cout << "bits: " << same_bits << " weight: " << weight << endl;
