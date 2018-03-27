@@ -15,7 +15,7 @@ iterations,5,the exponent of 10 of number of iterations in each realization (int
 repetitions,1,number of realizations (integer) OPTIONAL
 inform_after,10,after how many informations should the user be informed about the progress (integer) OPTIONAL
 save_from,100,start saving hist information after save_hist_from iterations (integer) OPTIONAL
-print_every,100,after how many iters balanced should b checked	(OPTIONAL)
+print_every,100,after how many iters balanced should be checked; if this value is -1 then the balanced is checked every N*(N-1)/2 iterations	(OPTIONAL)
 save_every,1000,af
 TO_FILE,0, OPTIONAL
 ITER_KEEP,0, OPTIONAL

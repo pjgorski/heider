@@ -257,6 +257,9 @@ void params::read_from_file(std::string filename){
 	if(it != end)
 		print_every = (int) (it->second).at(0);
 
+	if (print_every == -1)
+		print_every = N*(N-1)/2;
+
 
 	it = params.find("mean_attr");
 	if(it != end){

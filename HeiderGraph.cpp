@@ -68,22 +68,22 @@ void HeiderGraph::GetRandomTriad(int &node1, int& node2, int& node3){
 		exit(ZERO_TRIADS);
 	}
 
-	bool triadFound = false;
-
-	while (!triadFound){
-		TNEANet::TEdgeI rndEI = G->GetRndEI(rnd);
-		int rndSrc = rndEI.GetSrcNId(), rndDest = rndEI.GetDstNId();
-		TIntV NbrV;
-		//cout << "Random edge: (" << rndSrc << ", " << rndDest << ")" << endl;
-		TSnap::GetCmnNbrs(G, rndSrc, rndDest, NbrV);
-		if (NbrV.Len() != 0){
-			int nbrInd = rnd.GetUniDevInt(0, NbrV.Len()-1);
-			node1 = rndSrc;
-			node2 = rndDest;
-			node3 = NbrV[nbrInd];
-			triadFound = true;
-		}
-	}
+//	bool triadFound = false;
+//
+//	while (!triadFound){
+//		TNEANet::TEdgeI rndEI = G->GetRndEI(rnd);
+//		int rndSrc = rndEI.GetSrcNId(), rndDest = rndEI.GetDstNId();
+//		TIntV NbrV;
+//		//cout << "Random edge: (" << rndSrc << ", " << rndDest << ")" << endl;
+//		TSnap::GetCmnNbrs(G, rndSrc, rndDest, NbrV);
+//		if (NbrV.Len() != 0){
+//			int nbrInd = rnd.GetUniDevInt(0, NbrV.Len()-1);
+//			node1 = rndSrc;
+//			node2 = rndDest;
+//			node3 = NbrV[nbrInd];
+//			triadFound = true;
+//		}
+//	}
 //	TIntV t;
 //	G->GetNIdV(t);
 //
@@ -103,8 +103,17 @@ void HeiderGraph::GetRandomTriad(int &node1, int& node2, int& node3){
 	//t.Del(pos3);
 
 //	//We assume complete graph, so above for now is unnecessary
-	//TNEANet::TEdgeI rndEI = G->GetRndEI(rnd);
-			//int rndSrc = rndEI.GetSrcNId(), rndDest = rndEI.GetDstNId();
+	TNEANet::TEdgeI rndEI = G->GetRndEI(rnd);
+	int rndSrc = rndEI.GetSrcNId(), rndDest = rndEI.GetDstNId();
+	node1 = rndSrc;
+	node2 = rndDest;
+
+	node3 = G->GetRndNI(rnd).GetId();
+
+	while(node3 == node1 || node3 == node2){
+		node3 = G->GetRndNI(rnd).GetId();
+	}
+
 			//TInt
 //	node1 = G->GetRndNI(rnd).GetId();
 //	node2 = G->GetRndNI(rnd).GetId();
@@ -897,6 +906,37 @@ bool HeiderGraph::IsBalancedNode( int node1, int node2, int node3, int& caseNum 
 	int jk_rel = GetWeight(node2, node3);
 	int ik_rel = GetWeight(node1, node3);
 	return IsBalanced(ij_rel, jk_rel, ik_rel, caseNum);
+}
+
+bool HeiderGraph::IsBalancedNetwork(){
+	if (!wasModified){
+		return GetImbalancedPart()==0;
+	}
+
+	for (int i = 0; i < N; ++i){
+		for (int j = i+1; j < N; ++j){
+			for (int k = j+1; k < N; ++k){
+
+				int ij_rel = GetWeight(i, j);
+				int jk_rel = GetWeight(j, k);
+				int ik_rel = GetWeight(i, k);
+
+				if (ij_rel*jk_rel*ik_rel != 1)
+					return false;
+
+				/*cout << "Balance: " << balanced << endl;
+				system("pause");*/
+			}
+			//cout << i << " " << j << " nbrs: ";
+			//for (int k = 0; k < NbrV.Len(); ++k)
+			//	cout << NbrV[k] << " ";
+			//cout << endl;
+		}
+	}
+	CalcCaseCounts();
+	wasModified = false;
+
+	return true;
 }
 
 void HeiderGraph::CalcCaseCounts(){

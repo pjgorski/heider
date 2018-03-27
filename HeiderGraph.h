@@ -35,6 +35,7 @@ class HeiderGraph
 {
 	PNEANet G; // graph
 	TRnd rnd; //??
+	//TIntV
 	int N;
 	int E;
 	int d;
@@ -50,6 +51,7 @@ class HeiderGraph
 	int GetWeight(int node1, int node2);
 	/* calculate number of different balance cases */
 	void CalcCaseCounts();
+	bool IsBalancedNetwork();
 	bool IsBalancedNode(int node1, int node2, int node3, int& case_num);
 	bool IsBalanced(int ij_rel, int jk_rel, int ik_rel, int& case_num);
 	void GetRandomTriad(int &node1, int& node2, int& node3);
