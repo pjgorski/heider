@@ -34,7 +34,7 @@ typedef TVec<TIntV > TIntVecV;
 class HeiderGraph
 {
 	PNEANet G; // graph
-	TRnd rnd; //??
+	TRnd* rnd; //??
 	//TIntV
 	int N;
 	int E;
@@ -93,7 +93,7 @@ class HeiderGraph
 
 public:
 	HeiderGraph(void);
-	HeiderGraph(int N, int d,TRnd r,  TStr graphType, TStr changeSignType);
+	HeiderGraph(int N, int d,TRnd* r,  TStr graphType, TStr changeSignType);
 	/* types = [attrChoice, attrRandom, attrMax, attrRandomCount] */
 	void AntalDynamics(long long maxIterCount, double p, long long& iter, int&largestGroupSize, double bPart, int printEvery, int idRun = 0 );
 

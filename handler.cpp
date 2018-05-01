@@ -55,7 +55,7 @@ void handler::work(){
 					std::cout << "N: " << N << " d: " << attr << " p: " << p << std::endl;
 					//HeiderGraph G(N, attr, "complete", "attrRandom");
 					//HeiderGraph G(N, attr, "complete", "attrChoice");
-					HeiderGraph G(N, attr, r, TStr(confParams.graphType.c_str()), TStr(confParams.dynamicsType.c_str()));
+					HeiderGraph G(N, attr, &r, TStr(confParams.graphType.c_str()), TStr(confParams.dynamicsType.c_str()));
 					G.setParams(confParams);
 					Stat statInfo;
 

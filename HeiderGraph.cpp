@@ -20,10 +20,12 @@ HeiderGraph::HeiderGraph(void)
 	negativeWeightsCount = 0;
 	triads = 0;
 	wasModified = false;
+
+	rnd = 0;
 }
 
 /* type = ["complete"] */
-HeiderGraph::HeiderGraph( int N, int d, TRnd r, TStr graphType, TStr changeSignType )
+HeiderGraph::HeiderGraph( int N, int d, TRnd* r, TStr graphType, TStr changeSignType )
 {
 	this->N = N;
 	this->d = d;
@@ -35,7 +37,7 @@ HeiderGraph::HeiderGraph( int N, int d, TRnd r, TStr graphType, TStr changeSignT
 	//dyn.erase(dyn.end()-1, dyn.end());
 	this->changeSignType = changeSignType;//dyn.c_str();
 
-	rnd = r;
+	(rnd) = r;
 	
 	if (this->graphType == "complete"){
 		G = TSnap::GenFull<PNEANet>(N);
@@ -71,13 +73,13 @@ void HeiderGraph::GetRandomTriad(int &node1, int& node2, int& node3){
 //	bool triadFound = false;
 //
 //	while (!triadFound){
-//		TNEANet::TEdgeI rndEI = G->GetRndEI(rnd);
+//		TNEANet::TEdgeI rndEI = G->GetRndEI((*rnd));
 //		int rndSrc = rndEI.GetSrcNId(), rndDest = rndEI.GetDstNId();
 //		TIntV NbrV;
 //		//cout << "Random edge: (" << rndSrc << ", " << rndDest << ")" << endl;
 //		TSnap::GetCmnNbrs(G, rndSrc, rndDest, NbrV);
 //		if (NbrV.Len() != 0){
-//			int nbrInd = rnd.GetUniDevInt(0, NbrV.Len()-1);
+//			int nbrInd = (*rnd).GetUniDevInt(0, NbrV.Len()-1);
 //			node1 = rndSrc;
 //			node2 = rndDest;
 //			node3 = NbrV[nbrInd];
@@ -87,9 +89,9 @@ void HeiderGraph::GetRandomTriad(int &node1, int& node2, int& node3){
 //	TIntV t;
 //	G->GetNIdV(t);
 //
-//	int pos1 = rnd.GetUniDevInt(0, t.Len() - 1),
-//			pos2 = rnd.GetUniDevInt(0, t.Len() - 2),
-//			pos3 = rnd.GetUniDevInt(0, t.Len() - 3);
+//	int pos1 = (*rnd).GetUniDevInt(0, t.Len() - 1),
+//			pos2 = (*rnd).GetUniDevInt(0, t.Len() - 2),
+//			pos3 = (*rnd).GetUniDevInt(0, t.Len() - 3);
 //
 //	node1 = int(t.GetVal(pos1));
 //	t.Del(pos1);
@@ -103,21 +105,21 @@ void HeiderGraph::GetRandomTriad(int &node1, int& node2, int& node3){
 	//t.Del(pos3);
 
 //	//We assume complete graph, so above for now is unnecessary
-	TNEANet::TEdgeI rndEI = G->GetRndEI(rnd);
+	TNEANet::TEdgeI rndEI = G->GetRndEI((*rnd));
 	int rndSrc = rndEI.GetSrcNId(), rndDest = rndEI.GetDstNId();
 	node1 = rndSrc;
 	node2 = rndDest;
 
-	node3 = G->GetRndNI(rnd).GetId();
+	node3 = G->GetRndNI((*rnd)).GetId();
 
 	while(node3 == node1 || node3 == node2){
-		node3 = G->GetRndNI(rnd).GetId();
+		node3 = G->GetRndNI((*rnd)).GetId();
 	}
 
 			//TInt
-//	node1 = G->GetRndNI(rnd).GetId();
-//	node2 = G->GetRndNI(rnd).GetId();
-//	node3 = G->GetRndNI(rnd).GetId();
+//	node1 = G->GetRndNI((*rnd)).GetId();
+//	node2 = G->GetRndNI((*rnd)).GetId();
+//	node3 = G->GetRndNI((*rnd)).GetId();
 }
 
 //@not used
@@ -136,9 +138,9 @@ void HeiderGraph::GetRandomTriadForNode( const int &node, int& nbr1, int& nbr2 )
 	/* get indexes of two random edges of node */
 	while (nbr1 == node || nbr2 == node || nbr1 == nbr2){
 		if (nbr1 == node)
-			nbr1 = rnd.GetUniDevInt(0, nbrCount-1);
+			nbr1 = (*rnd).GetUniDevInt(0, nbrCount-1);
 		if (nbr2 == node || nbr2 == nbr1)
-			nbr2 = rnd.GetUniDevInt(0, nbrCount-1);
+			nbr2 = (*rnd).GetUniDevInt(0, nbrCount-1);
 	}
 	/* get neighbors by indexes */
 	nbr1 = nodeI.GetOutNId(nbr1);
@@ -206,7 +208,7 @@ void HeiderGraph::ChangeSign( int& node1, int& node2, int& node3, bool isPlusToM
 			ind.Add(3);
 	}
 
-	ind.Shuffle(rnd);
+	ind.Shuffle((*rnd));
 	int var = ind[0];
 	if (var == 1){
 		ChangeSign(node1, node2, isPlusToMinus);
@@ -298,7 +300,7 @@ void HeiderGraph::ChangeSignAttrChoice( int& node1, int& node2, bool isPlusToMin
 	if (d == 3)
 		signsToAdd = 1;
 	//cout << "Pluses to add: " << plusesToAdd << endl;
-	attrIndV.Shuffle(rnd);
+	attrIndV.Shuffle((*rnd));
 	for (int i = 0; i < signsToAdd; ++i){
 		int attrInd = attrIndV[i];
 		int val = G->GetIntAttrIndDatN(node1, attrInd);
@@ -353,11 +355,11 @@ void HeiderGraph::ChangeSignAttrRandom( int& node1, int& node2, bool isPlusToMin
 	else
 		bits = GetDiffAttrV(node1, node2, and_xor);
 
-	int r = rnd.GetUniDevInt(0, bits-1);//attrIndV.Len()-1);
+	int r = (*rnd).GetUniDevInt(0, bits-1);//attrIndV.Len()-1);
 
-	//attrIndV.Shuffle(rnd);
+	//attrIndV.Shuffle((*rnd));
 	//int attrInd = attrIndV[0];
-	int nodeToChange = rnd.GetUniDevInt(1,2);
+	int nodeToChange = (*rnd).GetUniDevInt(1,2);
 
 	int node;
 	if (nodeToChange == 1){
@@ -434,9 +436,9 @@ void HeiderGraph::ChangeSignAttrRandomCount( int& node1, int& node2, bool isPlus
 	//	signsToAdd = ceil(d / 2.0) - minusesCount;
 	//if (d == 3)
 	//	signsToAdd = 1;
-	signsToAdd = rnd.GetUniDevInt(1, attrIndV.Len());
+	signsToAdd = (*rnd).GetUniDevInt(1, attrIndV.Len());
 	//cout << "Pluses to add: " << plusesToAdd << endl;
-	attrIndV.Shuffle(rnd);
+	attrIndV.Shuffle((*rnd));
 	for (int i = 0; i < signsToAdd; ++i){
 		int attrInd = attrIndV[i];
 		int val = G->GetIntAttrIndDatN(node1, attrInd);
@@ -472,7 +474,7 @@ void HeiderGraph::ChangeSignAttrMax( int& node1, int& node2, bool isPlusToMinus 
 	//	signsToAdd = 1;
 	signsToAdd = attrIndV.Len();
 	//cout << "Pluses to add: " << plusesToAdd << endl;
-	attrIndV.Shuffle(rnd);
+	attrIndV.Shuffle((*rnd));
 	for (int i = 0; i < signsToAdd; ++i){
 		int attrInd = attrIndV[i];
 		int val = G->GetIntAttrIndDatN(node1, attrInd);
@@ -533,7 +535,7 @@ int HeiderGraph::GetSimAttrV( int& node1, int& node2, TIntV& bit_and )
 //	cout << "same bits: " << same_bits <<endl;
 	//PrintNodeAttrs(node1);
 	//PrintNodeAttrs(node2);
-//	int r = rnd.GetUniDevInt(0, same_bits-1);
+//	int r = (*rnd).GetUniDevInt(0, same_bits-1);
 //	cout << "Picked to change bit nr: " << r << endl;
 //	cout << "node1: " << nthset(node1, r) << endl;
 //	cout << "node2: " << nthset(node2, r) << endl;
@@ -585,10 +587,10 @@ void HeiderGraph::PrintWeightMatrix()
 //unused
 void HeiderGraph::Mutate( double pm )
 {
-	double rval  = rnd.GetUniDev();
+	double rval  = (*rnd).GetUniDev();
 	if (rval < pm){
-		int node = rnd.GetUniDevInt(0, N-1);
-		int attrInd = rnd.GetUniDevInt(0, d-1);
+		int node = (*rnd).GetUniDevInt(0, N-1);
+		int attrInd = (*rnd).GetUniDevInt(0, d-1);
 		int val = G->GetIntAttrDatN(node, attrNames[attrInd]);
 		G->AddIntAttrDatN(node, val * (-1), attrNames[attrInd]);
 	}
@@ -654,7 +656,7 @@ void HeiderGraph::AntalDynamics( long long maxIterCount, double p, long long& it
 		int newTriadType = -1;
 		bool plusToMinus = false; 
 		if (triadType == 1){
-			double prob = rnd.GetUniDev();
+			double prob = (*rnd).GetUniDev();
 			if (prob < p){
 				//if (triadType == 0)
 				//	continue;
@@ -750,7 +752,7 @@ void HeiderGraph::RandomInit()
 	for (int j = 0; j < dv; ++j){
 		TIntV temp;
 		for (int i = 0; i < N; ++i){
-			int r = rnd.GetUniDevInt(0, pow(2, int(bits[j]))-1);
+			int r = (*rnd).GetUniDevInt(0, pow(2, int(bits[j]))-1);
 			temp.Add(r);
 			//cout << r << " ";
 		}
@@ -770,7 +772,7 @@ void HeiderGraph::RandomInit()
 //		//TIntV temp;
 //		for (int j = 0; j < d; ++j){
 //			int val = 0;
-//			double r = rnd.GetUniDev();
+//			double r = (*rnd).GetUniDev();
 //			if (r >= 0.5)
 //				val = -1;
 //			else
